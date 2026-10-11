@@ -186,9 +186,9 @@ export default function DashboardLayout() {
     null
   );
 
-  // Live Simulation Clock (default 09:10 = 550m)
-  const [simClock, setSimClock] = useState<number>(550);
-  const [playing, setPlaying] = useState<boolean>(false);
+  // Live Simulation Clock (default 09:15 = 555m, auto-playing live)
+  const [simClock, setSimClock] = useState<number>(555);
+  const [playing, setPlaying] = useState<boolean>(true);
   const [speed, setSpeed] = useState<1 | 2 | 4>(1);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -687,7 +687,8 @@ export default function DashboardLayout() {
       setStagedDisruptions([]);
       setOperatorConfirmed(false);
       setErrorBanner(null);
-      setSimClock(575); // 09:35 AM — right when T101 is on P1 and T103 is re-routed to P3!
+      setSimClock(562); // 09:22 AM — T101 arrives on P1, P2 is closed, and T103 approaches P3!
+      setPlaying(true);
       setSelectedTrainId("T103");
       setNotice(
         `Judge Demo Complete (v${newVer.version_number} VALID): Train T103 re-routed from closed Platform P2 → P3 (09:25–09:45, 0m delay!), T102 held to 09:50 on P1, and T104 held to 09:55 on P3 (10m safety gaps verified).`
@@ -873,6 +874,34 @@ export default function DashboardLayout() {
               <strong className="clock-time">{minToClock(simClock)} IST</strong>
               <button
                 type="button"
+                className="hud-btn"
+                style={{
+                  background: playing ? "#059669" : "#2563eb",
+                  color: "#ffffff",
+                  borderColor: playing ? "#047857" : "#1d4ed8",
+                  fontWeight: 700,
+                  padding: "4px 10px",
+                }}
+                onClick={() => setPlaying((p) => !p)}
+                data-testid="topbar-start-sim-btn"
+                title="Start or Pause Live Simulation Clock"
+              >
+                {playing ? "⏸ Running" : "▶ Start Sim"}
+              </button>
+              <button
+                type="button"
+                className="hud-btn"
+                style={{ padding: "4px 8px", fontWeight: 700 }}
+                onClick={() =>
+                  setSpeed((s) => (s === 1 ? 2 : s === 2 ? 4 : 1))
+                }
+                data-testid="topbar-speed-btn"
+                title="Cycle Simulation Speed (1x / 2x / 4x)"
+              >
+                {speed}x
+              </button>
+              <button
+                type="button"
                 className={`live-mic-pill ${
                   liveVoiceState === "listening"
                     ? "listening"
@@ -998,11 +1027,13 @@ export default function DashboardLayout() {
             <button
               type="button"
               className="hud-btn accent"
-              onClick={() => {
-                if (stagedDisruptions.length > 0 && operatorConfirmed) {
-                  handleApplyReplan();
+              onClick={async () => {
+                if (stagedDisruptions.length > 0) {
+                  setOperatorConfirmed(true);
+                  await handleApplyReplan();
+                  setPlaying(true);
                 } else {
-                  setActivePage("disruptions");
+                  await handleRunJudgeAutoDemo();
                 }
               }}
               data-testid="quick-run-replanning-btn"
@@ -1393,24 +1424,12 @@ export default function DashboardLayout() {
                         }`}
                         onClick={async () => {
                           if (stagedDisruptions.length === 0) {
-                            setStagedDisruptions([
-                              {
-                                type: "train_delay",
-                                train_id: "T101",
-                                delay_minutes: 20,
-                              },
-                              {
-                                type: "platform_closure",
-                                platform_id: "P2",
-                                start_time: "09:20",
-                                end_time: "10:00",
-                              },
-                            ]);
-                            setOperatorConfirmed(true);
+                            await handleRunJudgeAutoDemo();
                             return;
                           }
                           setOperatorConfirmed(true);
                           await handleApplyReplan();
+                          setPlaying(true);
                         }}
                         disabled={loading}
                         data-testid="driver-step-3-btn"
@@ -1419,6 +1438,22 @@ export default function DashboardLayout() {
                         {stagedDisruptions.length > 0
                           ? `Confirm & Re-Route Trains (${stagedDisruptions.length})`
                           : "Confirm & Re-Route Trains"}
+                      </button>
+                      <button
+                        type="button"
+                        className="driver-step-btn"
+                        style={{
+                          background: playing ? "#059669" : "#2563eb",
+                          color: "#ffffff",
+                          borderColor: playing ? "#047857" : "#1d4ed8",
+                          fontWeight: 700,
+                        }}
+                        onClick={() => setPlaying((p) => !p)}
+                        data-testid="driver-start-sim-btn"
+                      >
+                        {playing
+                          ? `⏸ Live Simulation ON (${minToClock(simClock)})`
+                          : "▶ Start Live Simulation"}
                       </button>
                     </div>
 

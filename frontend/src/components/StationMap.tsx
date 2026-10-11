@@ -242,6 +242,37 @@ export const StationMap: React.FC<StationMapProps> = ({
         </div>
 
         <div className="map-camera-controls">
+          <button
+            type="button"
+            className="hud-btn"
+            style={{
+              background: playing ? "#059669" : "#2563eb",
+              color: "#ffffff",
+              borderColor: playing ? "#047857" : "#1d4ed8",
+              fontWeight: 700,
+            }}
+            onClick={() => setPlaying((p) => !p)}
+            data-testid="map-top-start-sim-btn"
+            title="Start or Pause Live Train Movement Simulation"
+          >
+            {playing
+              ? `⏸ Running Live (${minToClock(simClock)})`
+              : `▶ Start Simulation (${minToClock(simClock)})`}
+          </button>
+
+          <button
+            type="button"
+            className="hud-btn"
+            onClick={() => {
+              setSimClock(540);
+              setPlaying(true);
+            }}
+            title="Restart simulation from 09:00 IST and play live"
+            data-testid="map-top-restart-sim-btn"
+          >
+            ↺ Restart 09:00
+          </button>
+
           {renderMode === "3d" && (
             <button
               type="button"
