@@ -1,0 +1,198 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 480" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#020617" />
+      <stop offset="50%" stop-color="#071329" />
+      <stop offset="100%" stop-color="#041e2e" />
+    </linearGradient>
+
+    <linearGradient id="cyanGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.1" />
+      <stop offset="50%" stop-color="#38bdf8" stop-opacity="0.85" />
+      <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.1" />
+    </linearGradient>
+
+    <linearGradient id="emeraldGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" stop-opacity="0.2" />
+      <stop offset="50%" stop-color="#34d399" stop-opacity="1" />
+      <stop offset="100%" stop-color="#10b981" stop-opacity="0.2" />
+    </linearGradient>
+
+    <linearGradient id="platDeck" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1e293b" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+
+    <style>
+      .title { font: 800 28px 'Segoe UI', system-ui, sans-serif; fill: #f8fafc; letter-spacing: 0.5px; }
+      .subtitle { font: 600 13.5px 'Segoe UI', system-ui, sans-serif; fill: #94a3b8; }
+      .badge { font: 800 11px 'Consolas', monospace; fill: #38bdf8; letter-spacing: 1.2px; }
+      .hud-label { font: 700 11px 'Consolas', monospace; fill: #cbd5e1; }
+      .plat-title { font: 800 12px 'Consolas', monospace; fill: #e2e8f0; }
+      .train-label { font: 800 11px 'Consolas', monospace; fill: #020617; }
+      .grid-line { stroke: #1e293b; stroke-width: 1; stroke-dasharray: 4 6; }
+
+      /* 3D Perspective Isometric Tilt Group */
+      .iso-stage {
+        transform: perspective(900px) rotateX(22deg) rotateZ(-4deg);
+        transform-origin: 550px 300px;
+      }
+
+      /* Animated Train T101 (+20m Delayed on P1) */
+      @keyframes moveT101 {
+        0%, 10% { transform: translateX(180px); }
+        45%, 80% { transform: translateX(460px); }
+        100% { transform: translateX(850px); }
+      }
+      /* Animated Train T102 (Held Safely Behind T101 with 10m Gap) */
+      @keyframes moveT102 {
+        0%, 30% { transform: translateX(40px); }
+        65%, 90% { transform: translateX(250px); }
+        100% { transform: translateX(620px); }
+      }
+      /* Animated Train T103 (Re-Routed P2 -> P3 via Emerald Switch!) */
+      @keyframes rerouteT103 {
+        0% { transform: translate(110px, 290px); }
+        28% { transform: translate(250px, 290px); }
+        52% { transform: translate(390px, 375px); }
+        85% { transform: translate(670px, 375px); }
+        100% { transform: translate(890px, 375px); }
+      }
+      @keyframes pulseRed {
+        0%, 100% { opacity: 0.45; }
+        50% { opacity: 0.95; }
+      }
+      @keyframes flowDash {
+        to { stroke-dashoffset: -40; }
+      }
+      .t101-anim { animation: moveT101 8s infinite ease-in-out; }
+      .t102-anim { animation: moveT102 8s infinite ease-in-out; }
+      .t103-anim { animation: rerouteT103 8s infinite ease-in-out; }
+      .pulse-danger { animation: pulseRed 2s infinite ease-in-out; }
+      .emerald-switch { stroke-dasharray: 10 6; animation: flowDash 1.2s infinite linear; }
+    </style>
+  </defs>
+
+  <!-- Deep Space / Cyber Control Room Background -->
+  <rect width="1100" height="480" rx="18" fill="url(#bgGrad)" stroke="#1e293b" stroke-width="2" />
+
+  <!-- Perspective Cyber Grid -->
+  <g opacity="0.45">
+    <line x1="0" y1="140" x2="1100" y2="140" class="grid-line" />
+    <line x1="0" y1="220" x2="1100" y2="220" class="grid-line" />
+    <line x1="0" y1="300" x2="1100" y2="300" class="grid-line" />
+    <line x1="0" y1="380" x2="1100" y2="380" class="grid-line" />
+    <line x1="200" y1="110" x2="80" y2="470" class="grid-line" />
+    <line x1="420" y1="110" x2="360" y2="470" class="grid-line" />
+    <line x1="660" y1="110" x2="680" y2="470" class="grid-line" />
+    <line x1="900" y1="110" x2="1000" y2="470" class="grid-line" />
+  </g>
+
+  <!-- TOP HEADER HUD -->
+  <g transform="translate(36, 28)">
+    <rect x="0" y="0" width="380" height="24" rx="6" fill="#0c4a6e" fill-opacity="0.55" stroke="#38bdf8" stroke-width="1" />
+    <circle cx="14" cy="12" r="4.5" fill="#34d399" />
+    <text x="26" y="16" class="badge">VORTEXA 3.0 · P-03 · AUTONOMA.NOXVERSE.IN</text>
+
+    <text x="0" y="56" class="title">RailFlow Autonoma — 3D Station Digital Twin</text>
+    <text x="0" y="80" class="subtitle">AI translates voice/text alerts · Google OR-Tools re-routes trains · Independent Firewall enforces 10m safety gaps</text>
+  </g>
+
+  <!-- LIVE STATUS TELEMETRY CARDS (TOP RIGHT) -->
+  <g transform="translate(740, 26)">
+    <rect x="0" y="0" width="324" height="72" rx="10" fill="#091326" stroke="#10b981" stroke-width="1.5" />
+    <circle cx="20" cy="22" r="5" fill="#10b981" filter="url(#glow)" />
+    <text x="34" y="26" class="plat-title" fill="#34d399">SOLVER: OPTIMAL · VALIDATOR: VALID</text>
+    <text x="20" y="46" class="hud-label">• T103 Re-Routed: Platform P2 → P3 (0m delay)</text>
+    <text x="20" y="62" class="hud-label">• T102 Held on P1: +20m (10m safety buffer)</text>
+  </g>
+
+  <!-- ================= 3D ISOMETRIC STATION TRACKS & PLATFORMS ================= -->
+  <!-- PLATFORM P1 (TOP TRACK) -->
+  <g transform="translate(0, 0)">
+    <!-- 3D Platform Deck P1 -->
+    <polygon points="160,165 920,165 935,192 145,192" fill="url(#platDeck)" stroke="#38bdf8" stroke-width="1.2" />
+    <polygon points="145,192 935,192 935,200 145,200" fill="#0c4a6e" />
+    <text x="175" y="183" class="plat-title">PLATFORM P1 · EXPRESS CORRIDOR (10m CLEARANCE ENFORCED)</text>
+
+    <!-- Track P1 Rails -->
+    <line x1="60" y1="210" x2="1040" y2="210" stroke="#475569" stroke-width="6" />
+    <line x1="60" y1="210" x2="1040" y2="210" stroke="#94a3b8" stroke-width="2" stroke-dasharray="12 8" />
+
+    <!-- Signal P1 East -->
+    <circle cx="965" cy="182" r="7" fill="#10b981" filter="url(#glow)" />
+    <text x="980" y="186" class="hud-label" fill="#34d399">SIG-P1 GREEN</text>
+  </g>
+
+  <!-- PLATFORM P2 (MIDDLE TRACK — CLOSED 09:20-10:00) -->
+  <g transform="translate(0, 0)">
+    <polygon points="160,255 920,255 935,282 145,282" fill="#2a1215" stroke="#ef4444" stroke-width="1.5" />
+    <polygon points="145,282 935,282 935,290 145,290" fill="#7f1d1d" />
+    <text x="175" y="273" class="plat-title" fill="#fca5a5">PLATFORM P2 · CLOSED 09:20–10:00 (EMERGENCY BLOCKADE)</text>
+
+    <!-- Track P2 Rails -->
+    <line x1="60" y1="300" x2="1040" y2="300" stroke="#475569" stroke-width="6" />
+    <!-- Red Hazard Closure Zone on P2 -->
+    <rect x="380" y="288" width="440" height="24" rx="4" fill="#ef4444" fill-opacity="0.35" stroke="#f87171" stroke-width="1.5" class="pulse-danger" />
+    <text x="510" y="304" class="hud-label" fill="#fecaca">⛔ TRACK P2 CLOSED (09:20–10:00)</text>
+
+    <!-- Signal P2 Red -->
+    <circle cx="965" cy="272" r="7" fill="#ef4444" filter="url(#glow)" />
+    <text x="980" y="276" class="hud-label" fill="#f87171">SIG-P2 STOP</text>
+  </g>
+
+  <!-- PLATFORM P3 (BOTTOM TRACK — RECEIVES RE-ROUTED T103) -->
+  <g transform="translate(0, 0)">
+    <polygon points="160,345 920,345 935,372 145,372" fill="url(#platDeck)" stroke="#10b981" stroke-width="1.5" />
+    <polygon points="145,372 935,372 935,380 145,380" fill="#064e3b" />
+    <text x="175" y="363" class="plat-title" fill="#6ee7b7">PLATFORM P3 · RELIEF TRACK (RECEIVES RE-ROUTED TRAIN T103)</text>
+
+    <!-- Track P3 Rails -->
+    <line x1="60" y1="385" x2="1040" y2="385" stroke="#475569" stroke-width="6" />
+    <line x1="60" y1="385" x2="1040" y2="385" stroke="#34d399" stroke-width="2" stroke-dasharray="12 8" />
+
+    <!-- Signal P3 Green -->
+    <circle cx="965" cy="362" r="7" fill="#10b981" filter="url(#glow)" />
+    <text x="980" y="366" class="hud-label" fill="#34d399">SIG-P3 PROCEED</text>
+  </g>
+
+  <!-- EMERALD INTERLOCKING TURNOUT SWITCH (SW-101W: P2 -> P3) -->
+  <path d="M 250 300 C 310 300, 330 385, 390 385" fill="none" stroke="#10b981" stroke-width="5" class="emerald-switch" filter="url(#glow)" />
+  <circle cx="250" cy="300" r="6" fill="#34d399" />
+  <circle cx="390" cy="385" r="6" fill="#34d399" />
+  <rect x="255" y="324" width="135" height="20" rx="4" fill="#064e3b" stroke="#10b981" />
+  <text x="263" y="338" class="hud-label" fill="#6ee7b7">SW-101W: P2 → P3</text>
+
+  <!-- ================= ANIMATED 3D TRAINS ================= -->
+  <!-- Train T101 (+20m Delay on P1) -->
+  <g class="t101-anim" transform="translate(460, 0)">
+    <rect x="0" y="196" width="136" height="24" rx="6" fill="#f59e0b" stroke="#fef3c7" stroke-width="1.5" filter="url(#glow)" />
+    <text x="10" y="212" class="train-label">T101 (+20m · P1)</text>
+  </g>
+
+  <!-- Train T102 (Held on P1 behind T101 with 10m Safety Gap) -->
+  <g class="t102-anim" transform="translate(240, 0)">
+    <rect x="0" y="196" width="154" height="24" rx="6" fill="#38bdf8" stroke="#e0f2fe" stroke-width="1.5" filter="url(#glow)" />
+    <text x="10" y="212" class="train-label">T102 (10m SAFE GAP)</text>
+  </g>
+
+  <!-- Train T103 (Animated Re-Routing from P2 -> P3!) -->
+  <g class="t103-anim">
+    <rect x="0" y="-12" width="168" height="26" rx="6" fill="#10b981" stroke="#d1fae5" stroke-width="2" filter="url(#glow)" />
+    <text x="10" y="5" class="train-label">T103 (P2→P3 · 0m DELAY)</text>
+  </g>
+
+  <!-- BOTTOM 4-STEP ARCHITECTURE FOOTER BAR -->
+  <g transform="translate(36, 424)">
+    <rect x="0" y="0" width="1028" height="36" rx="8" fill="#091326" stroke="#1e293b" stroke-width="1.5" />
+    <text x="20" y="23" class="hud-label" fill="#38bdf8">[1] Voice / NLP Alert ("Delay T101 +20m, Close P2")</text>
+    <text x="330" y="23" class="hud-label" fill="#f59e0b">➔  [2] Human Signaller Confirm</text>
+    <text x="545" y="23" class="hud-label" fill="#a855f7">➔  [3] Google OR-Tools CP-SAT</text>
+    <text x="765" y="23" class="hud-label" fill="#34d399">➔  [4] 6-Rule Safety Firewall (VALID)</text>
+  </g>
+</svg>
