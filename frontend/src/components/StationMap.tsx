@@ -3,20 +3,13 @@ import {
   Box,
   Compass,
   Eye,
-  FastForward,
   Layers,
   Map as MapIcon,
   Maximize2,
-  Pause,
-  Play,
-  RotateCcw,
-  SkipBack,
-  SkipForward,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
 import {
-  Platform,
   ScenarioResponse,
   ScheduleVersion,
 } from "../types";
@@ -54,8 +47,6 @@ export const StationMap: React.FC<StationMapProps> = ({
   setSimClock,
   playing,
   setPlaying,
-  speed,
-  setSpeed,
   selectedTrainId,
   selectedPlatformId,
   onSelectTrain,
@@ -115,32 +106,6 @@ export const StationMap: React.FC<StationMapProps> = ({
   const changes = displayedVersion.changes ?? [];
   const disruptions = displayedVersion.applied_disruptions ?? [];
   const validationErrors = displayedVersion.validation_findings ?? [];
-
-  const { minTime, maxTime } = useMemo(() => {
-    const times: number[] = [];
-    trains.forEach((t) => times.push(t.arrival, t.departure));
-    assignments.forEach((a) => {
-      if (a.arrival !== null) times.push(a.arrival);
-      if (a.departure !== null) times.push(a.departure + 15);
-    });
-    disruptions.forEach((d) => {
-      if (d.start !== null) times.push(d.start);
-      if (d.end !== null) times.push(d.end);
-    });
-    if (times.length === 0) return { minTime: 510, maxTime: 630 };
-    const earliest = Math.max(
-      0,
-      Math.floor((Math.min(...times) - 15) / 15) * 15
-    );
-    const latest = Math.min(
-      1440,
-      Math.ceil((Math.max(...times) + 15) / 15) * 15
-    );
-    return {
-      minTime: earliest,
-      maxTime: Math.max(earliest + 60, latest),
-    };
-  }, [trains, assignments, disruptions]);
 
   const handleFitStation = () => {
     setFitTrigger((n) => n + 1);
@@ -596,48 +561,21 @@ export const StationMap: React.FC<StationMapProps> = ({
                     </svg>
                 </div>
 
-                {/* Geographic Corridor Status & Explicit Fictional Overlay Banner */}
+                {/* Compact Non-Overlapping Corner Status Pill */}
                 <div
                   className="geo-corridor-hud"
                   data-testid="geo-corridor-hud"
                 >
-                  <div className="geo-corridor-title">
-                    <strong>
-                      FICTIONAL CENTRAL JUNCTION SIMULATION CORRIDOR
-                    </strong>
-                    <span>
-                      Synthetic Georeferenced Track Overlay · Sector 51.531°N,
-                      0.124°W (Fictionalized Demo Alignment)
-                    </span>
-                  </div>
-                  <div className="geo-corridor-actions">
-                    <span
-                      className="geo-status-pill ready"
-                      data-testid="geo-tile-status-badge"
-                    >
-                      {configuredMapStyleUrl && geoTileStatus === "ready"
-                        ? "Custom Tile Basemap Active"
-                        : geoBasemapStyle === "satellite"
-                        ? "Real Satellite Map Active (Free · Zero Key)"
-                        : "Real Street Map Active (Free · Zero Key)"}
-                    </span>
-                    <button
-                      type="button"
-                      className="mini-btn"
-                      onClick={() => setRenderMode("3d")}
-                      data-testid="geo-fallback-3d-btn"
-                    >
-                      3D Twin
-                    </button>
-                    <button
-                      type="button"
-                      className="mini-btn"
-                      onClick={() => setRenderMode("schematic")}
-                      data-testid="geo-fallback-schematic-btn"
-                    >
-                      2D Schematic
-                    </button>
-                  </div>
+                  <span
+                    className="geo-status-pill ready"
+                    data-testid="geo-tile-status-badge"
+                  >
+                    {configuredMapStyleUrl && geoTileStatus === "ready"
+                      ? "Custom Tile Basemap Active"
+                      : geoBasemapStyle === "satellite"
+                      ? "Real Satellite Map Active (Free · Zero Key)"
+                      : "Real Street Map Active (Free · Zero Key)"}
+                  </span>
                 </div>
 
                 {/* Attribution Compliance Footer */}
@@ -656,7 +594,7 @@ export const StationMap: React.FC<StationMapProps> = ({
             )}
 
             <svg
-              viewBox="0 0 1050 400"
+              viewBox="0 0 1050 420"
               className="rich-station-svg"
               data-testid={
                 renderMode === "geographic"
@@ -666,89 +604,49 @@ export const StationMap: React.FC<StationMapProps> = ({
             >
               <g
                 transform={`translate(${525 + svgPan.x}, ${
-                  200 + svgPan.y
-                }) scale(${svgZoom}) translate(-525, -200)`}
+                  210 + svgPan.y
+                }) scale(${svgZoom}) translate(-525, -210)`}
               >
                 {/* Geographic Corridor Sector Frame when in Geographic mode */}
                 {renderMode === "geographic" && (
                   <g className="geo-svg-sector-markers">
                     <rect
-                      x="16"
-                      y="10"
-                      width="1018"
-                      height="380"
+                      x="14"
+                      y="8"
+                      width="1022"
+                      height="398"
                       rx="10"
-                      fill="rgba(15, 23, 42, 0.18)"
-                      stroke="rgba(37, 99, 235, 0.55)"
+                      fill="rgba(15, 23, 42, 0.14)"
+                      stroke="rgba(37, 99, 235, 0.5)"
                       strokeDasharray="8 6"
                       strokeWidth="1.5"
                     />
-                    <text
-                      x="32"
-                      y="32"
-                      fill="#38bdf8"
-                      fontSize="10"
-                      fontFamily="monospace"
-                      fontWeight="700"
-                    >
-                      WEST APPROACH · KM 14.2 (SYNTHETIC CORRIDOR)
-                    </text>
-                    <text
-                      x="1018"
-                      y="32"
-                      textAnchor="end"
-                      fill="#38bdf8"
-                      fontSize="10"
-                      fontFamily="monospace"
-                      fontWeight="700"
-                    >
-                      EAST MAINLINE · KM 16.8 (SYNTHETIC CORRIDOR)
-                    </text>
                   </g>
                 )}
 
-                {/* Station Concourse & Depot */}
+                {/* Station Concourse Header (Top Center, Clear of Tracks) */}
                 {layers.buildings && (
                   <g>
                     <rect
-                      x="300"
-                      y="14"
-                      width="440"
-                      height="42"
+                      x="310"
+                      y="12"
+                      width="430"
+                      height="32"
                       rx="6"
-                      fill="#0f1e36"
-                      stroke="#1e3a5f"
+                      fill="rgba(15, 23, 42, 0.92)"
+                      stroke="#3b82f6"
                       strokeWidth="1.5"
                     />
                     <text
-                      x="520"
-                      y="39"
+                      x="525"
+                      y="32"
                       textAnchor="middle"
-                      fill="#93c5fd"
-                      fontSize="12"
-                      fontWeight="700"
-                      letterSpacing="1.5"
+                      fill="#f8fafc"
+                      fontSize="11"
+                      fontWeight="800"
+                      letterSpacing="1.4"
                     >
-                      CENTRAL JUNCTION CONCOURSE & SIGNALLING TOWER
-                    </text>
-                    <rect
-                      x="110"
-                      y="340"
-                      width="190"
-                      height="36"
-                      rx="5"
-                      fill="#17253b"
-                      stroke="#334155"
-                    />
-                    <text
-                      x="205"
-                      y="362"
-                      textAnchor="middle"
-                      fill="#94a3b8"
-                      fontSize="10"
-                      fontWeight="600"
-                    >
-                      MAINTENANCE DEPOT & SIDING S1
+                      CENTRAL JUNCTION INTERLOCKING &amp; SIGNALLING YARD
                     </text>
                   </g>
                 )}
@@ -756,89 +654,61 @@ export const StationMap: React.FC<StationMapProps> = ({
                 {/* Mainline approach throats, sleepers, overbridge & switches */}
                 {layers.tracks && (
                   <g>
-                    {/* Mainline Track Bed & Rails */}
+                    {/* Mainline Track Bed & Rails at Y=215 */}
                     <line
                       x1="20"
-                      y1="190"
-                      x2="210"
-                      y2="190"
+                      y1="215"
+                      x2="215"
+                      y2="215"
                       stroke="#1e293b"
-                      strokeWidth="12"
+                      strokeWidth="10"
                     />
                     <line
                       x1="20"
-                      y1="190"
-                      x2="210"
-                      y2="190"
+                      y1="215"
+                      x2="215"
+                      y2="215"
                       stroke="#64748b"
-                      strokeWidth="4"
+                      strokeWidth="3.5"
                     />
                     <line
-                      x1="20"
-                      y1="190"
-                      x2="210"
-                      y2="190"
-                      stroke="#0f172a"
-                      strokeWidth="2"
-                      strokeDasharray="3 7"
-                    />
-                    <line
-                      x1="830"
-                      y1="190"
+                      x1="835"
+                      y1="215"
                       x2="1030"
-                      y2="190"
+                      y2="215"
                       stroke="#1e293b"
-                      strokeWidth="12"
+                      strokeWidth="10"
                     />
                     <line
-                      x1="830"
-                      y1="190"
+                      x1="835"
+                      y1="215"
                       x2="1030"
-                      y2="190"
+                      y2="215"
                       stroke="#64748b"
-                      strokeWidth="4"
-                    />
-                    <line
-                      x1="830"
-                      y1="190"
-                      x2="1030"
-                      y2="190"
-                      stroke="#0f172a"
-                      strokeWidth="2"
-                      strokeDasharray="3 7"
-                    />
-                    {/* Depot Siding S1 */}
-                    <line
-                      x1="150"
-                      y1="190"
-                      x2="220"
-                      y2="325"
-                      stroke="#334155"
-                      strokeWidth="3"
-                      strokeDasharray="6 4"
-                    />
-                    <line
-                      x1="220"
-                      y1="325"
-                      x2="420"
-                      y2="325"
-                      stroke="#334155"
-                      strokeWidth="4"
+                      strokeWidth="3.5"
                     />
                     {/* Interlocking Turnout Switches */}
                     <circle
-                      cx="210"
-                      cy="190"
+                      cx="215"
+                      cy="215"
                       r="7"
-                      fill="#38bdf8"
-                      stroke="#081223"
+                      fill="#2563eb"
+                      stroke="#ffffff"
                       strokeWidth="2"
                     />
+                    <rect
+                      x="162"
+                      y="188"
+                      width="56"
+                      height="17"
+                      rx="4"
+                      fill="rgba(15, 23, 42, 0.88)"
+                    />
                     <text
-                      x="202"
-                      y="174"
-                      textAnchor="end"
-                      fill="#7dd3fc"
+                      x="190"
+                      y="200"
+                      textAnchor="middle"
+                      fill="#93c5fd"
                       fontSize="9"
                       fontFamily="monospace"
                       fontWeight="700"
@@ -846,17 +716,26 @@ export const StationMap: React.FC<StationMapProps> = ({
                       SW-101W
                     </text>
                     <circle
-                      cx="830"
-                      cy="190"
+                      cx="835"
+                      cy="215"
                       r="7"
-                      fill="#38bdf8"
-                      stroke="#081223"
+                      fill="#2563eb"
+                      stroke="#ffffff"
                       strokeWidth="2"
                     />
+                    <rect
+                      x="832"
+                      y="188"
+                      width="56"
+                      height="17"
+                      rx="4"
+                      fill="rgba(15, 23, 42, 0.88)"
+                    />
                     <text
-                      x="838"
-                      y="174"
-                      fill="#7dd3fc"
+                      x="860"
+                      y="200"
+                      textAnchor="middle"
+                      fill="#93c5fd"
                       fontSize="9"
                       fontFamily="monospace"
                       fontWeight="700"
@@ -866,35 +745,10 @@ export const StationMap: React.FC<StationMapProps> = ({
                   </g>
                 )}
 
-                {/* Passenger Overbridge & Concourse Link */}
-                {layers.buildings && (
-                  <g>
-                    <rect
-                      x="504"
-                      y="64"
-                      width="34"
-                      height="242"
-                      rx="4"
-                      fill="rgba(30, 58, 95, 0.35)"
-                      stroke="rgba(147, 197, 253, 0.35)"
-                      strokeDasharray="4 3"
-                    />
-                    <text
-                      x="521"
-                      y="318"
-                      textAnchor="middle"
-                      fill="#64748b"
-                      fontSize="8.5"
-                      fontFamily="monospace"
-                    >
-                      OVERBRIDGE
-                    </text>
-                  </g>
-                )}
-
-                {/* Platforms P1, P2, P3 + Live Trackside Signals */}
+                {/* Platforms P1, P2, P3 — Canopy Header Above Track Berth so Trains NEVER Overlap Labels */}
                 {platforms.map((p, idx) => {
-                  const y = 105 + idx * 85;
+                  const trackY = 118 + idx * 102;
+                  const canopyY = trackY - 40;
                   const gapMin =
                     p.clearance_minutes ??
                     p.min_gap_minutes ??
@@ -927,7 +781,6 @@ export const StationMap: React.FC<StationMapProps> = ({
                     (c) => c.proposed_platform === p.id && c.platform_changed
                   );
 
-                  // Signal aspect logic: RED if closed or occupied now, AMBER if closure scheduled soon, GREEN if clear
                   const signalColor =
                     hasClosure || isClosedNow
                       ? "#ef4444"
@@ -936,10 +789,17 @@ export const StationMap: React.FC<StationMapProps> = ({
                       : "#10b981";
                   const signalText =
                     hasClosure || isClosedNow
-                      ? "STOP · CLOSED"
+                      ? `CLOSED ${pClosures
+                          .map(
+                            (c) =>
+                              `${c.start_str ?? minToClock(c.start)}–${
+                                c.end_str ?? minToClock(c.end)
+                              }`
+                          )
+                          .join(", ")}`
                       : occupiedNow
-                      ? "OCCUPIED"
-                      : "CLEAR · PROCEED";
+                      ? `OCCUPIED · ${gapMin}M GAP`
+                      : `CLEAR · ${gapMin}M SAFETY GAP`;
 
                   return (
                     <g
@@ -948,134 +808,154 @@ export const StationMap: React.FC<StationMapProps> = ({
                       style={{ cursor: "pointer" }}
                       data-testid={`schematic-platform-${p.id}`}
                     >
+                      {/* Dedicated Track Berth Bed */}
                       {layers.tracks && (
-                        <path
-                          d={`M 210 190 C 265 190, 265 ${y}, 320 ${y} L 720 ${y} C 775 ${y}, 775 190, 830 190`}
-                          fill="none"
-                          stroke={
-                            hasClosure
-                              ? "#ef4444"
-                              : isSelected
-                              ? "#38bdf8"
-                              : hasReassignedOnto && layers.routes
-                              ? "#10b981"
-                              : "#475569"
-                          }
-                          strokeWidth={
-                            isSelected || hasReassignedOnto ? "4.5" : "3.2"
-                          }
-                          strokeDasharray={hasClosure ? "7 5" : undefined}
-                        />
-                      )}
-                      {layers.platforms && (
-                        <rect
-                          x="320"
-                          y={y - 25}
-                          width="400"
-                          height="50"
-                          rx="8"
-                          fill={
-                            hasClosure
-                              ? "rgba(127, 29, 29, 0.58)"
-                              : isSelected
-                              ? "rgba(14, 116, 144, 0.58)"
-                              : "rgba(15, 29, 54, 0.92)"
-                          }
-                          stroke={
-                            hasClosure
-                              ? "#ef4444"
-                              : isSelected
-                              ? "#38bdf8"
-                              : hasReassignedOnto
-                              ? "#10b981"
-                              : "#1e3a5f"
-                          }
-                          strokeWidth={
-                            isSelected || hasClosure || hasReassignedOnto
-                              ? "2.2"
-                              : "1.5"
-                          }
-                        />
+                        <>
+                          <path
+                            d={`M 215 215 C 268 215, 268 ${trackY}, 315 ${trackY} L 735 ${trackY} C 782 ${trackY}, 782 215, 835 215`}
+                            fill="none"
+                            stroke="rgba(15, 23, 42, 0.75)"
+                            strokeWidth="9"
+                          />
+                          <path
+                            d={`M 215 215 C 268 215, 268 ${trackY}, 315 ${trackY} L 735 ${trackY} C 782 ${trackY}, 782 215, 835 215`}
+                            fill="none"
+                            stroke={
+                              hasClosure
+                                ? "#ef4444"
+                                : isSelected
+                                ? "#3b82f6"
+                                : hasReassignedOnto && layers.routes
+                                ? "#10b981"
+                                : "#94a3b8"
+                            }
+                            strokeWidth={
+                              isSelected || hasReassignedOnto ? "4.5" : "3"
+                            }
+                            strokeDasharray={hasClosure ? "8 5" : undefined}
+                          />
+                        </>
                       )}
 
-                      {/* West Entry Multi-Aspect Signal Head */}
-                      <g transform={`translate(298, ${y})`}>
+                      {/* Platform Header Banner (Strictly ABOVE Track Berth so Trains Never Cover Text) */}
+                      {layers.platforms && (
+                        <g>
+                          <rect
+                            x="315"
+                            y={canopyY}
+                            width="420"
+                            height="24"
+                            rx="6"
+                            fill={
+                              hasClosure
+                                ? "rgba(127, 29, 29, 0.94)"
+                                : isSelected
+                                ? "rgba(30, 64, 175, 0.95)"
+                                : "rgba(15, 23, 42, 0.92)"
+                            }
+                            stroke={
+                              hasClosure
+                                ? "#ef4444"
+                                : isSelected
+                                ? "#60a5fa"
+                                : hasReassignedOnto
+                                ? "#10b981"
+                                : "#334155"
+                            }
+                            strokeWidth="1.5"
+                          />
+                          <text
+                            x="328"
+                            y={canopyY + 16}
+                            fill="#ffffff"
+                            fontWeight="800"
+                            fontSize="11.5"
+                          >
+                            PLATFORM {p.id}
+                          </text>
+                          <text
+                            x="432"
+                            y={canopyY + 15.5}
+                            fill={hasClosure ? "#fca5a5" : "#6ee7b7"}
+                            fontSize="9.5"
+                            fontFamily="monospace"
+                            fontWeight="700"
+                          >
+                            {signalText}
+                          </text>
+                          <text
+                            x="724"
+                            y={canopyY + 15.5}
+                            textAnchor="end"
+                            fill="#93c5fd"
+                            fontSize="9.5"
+                            fontFamily="monospace"
+                            fontWeight="700"
+                          >
+                            {platAssignments.length > 0
+                              ? platAssignments
+                                  .map(
+                                    (a) =>
+                                      `${a.train_id} (${a.arrival_str}–${a.departure_str})`
+                                  )
+                                  .join(" · ")
+                              : "NO TRAINS"}
+                          </text>
+                        </g>
+                      )}
+
+                      {/* Track Berth Guide Box (Where Trains Dock) */}
+                      <rect
+                        x="315"
+                        y={trackY - 13}
+                        width="420"
+                        height="26"
+                        rx="5"
+                        fill={
+                          hasClosure
+                            ? "rgba(239, 68, 68, 0.16)"
+                            : "rgba(15, 23, 42, 0.32)"
+                        }
+                        stroke={
+                          hasClosure
+                            ? "rgba(239, 68, 68, 0.5)"
+                            : "rgba(148, 163, 184, 0.35)"
+                        }
+                        strokeDasharray="4 4"
+                      />
+
+                      {/* West Entry Signal Aspect */}
+                      <g transform={`translate(296, ${trackY})`}>
                         <rect
-                          x="-12"
+                          x="-10"
                           y="-9"
-                          width="20"
+                          width="18"
                           height="18"
                           rx="4"
-                          fill="#091326"
-                          stroke="#334155"
+                          fill="#0f172a"
+                          stroke="#475569"
                         />
-                        <circle cx="-2" cy="0" r="5" fill={signalColor} />
+                        <circle cx="-1" cy="0" r="5" fill={signalColor} />
                       </g>
 
-                      {/* East Departure Signal Head */}
-                      <g transform={`translate(736, ${y})`}>
+                      {/* East Departure Signal Aspect */}
+                      <g transform={`translate(752, ${trackY})`}>
                         <rect
                           x="-8"
                           y="-9"
-                          width="20"
+                          width="18"
                           height="18"
                           rx="4"
-                          fill="#091326"
-                          stroke="#334155"
+                          fill="#0f172a"
+                          stroke="#475569"
                         />
-                        <circle cx="2" cy="0" r="5" fill={signalColor} />
+                        <circle cx="1" cy="0" r="5" fill={signalColor} />
                       </g>
-
-                      <text
-                        x="336"
-                        y={y - 3}
-                        fill="#f8fafc"
-                        fontWeight="800"
-                        fontSize="14"
-                      >
-                        PLATFORM {p.id}
-                      </text>
-                      <text
-                        x="336"
-                        y={y + 13}
-                        fill={hasClosure ? "#fca5a5" : "#94a3b8"}
-                        fontSize="10"
-                        fontFamily="monospace"
-                      >
-                        SIGNAL: {signalText} · SAFETY GAP {gapMin}M
-                        {layers.closures && hasClosure
-                          ? ` · TRACK CLOSED ${pClosures
-                              .map(
-                                (c) =>
-                                  `${c.start_str ?? minToClock(c.start)}–${
-                                    c.end_str ?? minToClock(c.end)
-                                  }`
-                              )
-                              .join(", ")}`
-                          : ""}
-                      </text>
-
-                      {/* Platform LED Next-Train Board */}
-                      <text
-                        x="706"
-                        y={y - 4}
-                        textAnchor="end"
-                        fill="#7dd3fc"
-                        fontSize="10"
-                        fontFamily="monospace"
-                        fontWeight="700"
-                      >
-                        {platAssignments.length > 0
-                          ? platAssignments
-                              .map((a) => `${a.train_id} (${a.arrival_str})`)
-                              .join(" · ")
-                          : "NO TRAINS SCHEDULED"}
-                      </text>
                     </g>
                   );
                 })}
 
-                {/* Trains on Schematic / Geographic Overlay */}
+                {/* Trains on Track Berths & Non-Overlapping West Staging Slots */}
                 {layers.trains &&
                   assignments.map((a, idx) => {
                     if (
@@ -1090,38 +970,41 @@ export const StationMap: React.FC<StationMapProps> = ({
                       0,
                       platforms.findIndex((p) => p.id === a.platform_id)
                     );
-                    const y = 105 + pIdx * 85;
-                    let x = 115;
+                    const trackY = 118 + pIdx * 102;
+                    let x = 96;
+                    let tokenY = trackY;
                     let stateLabel = "APPROACHING";
+
                     if (simClock < a.arrival - 15) {
-                      x = 75 + ((idx * 24) % 90);
+                      // Dedicated vertical queue on West Approach so waiting trains NEVER overlap
+                      x = 92;
+                      tokenY = 78 + idx * 78;
                       stateLabel = `DUE ${a.arrival_str}`;
                     } else if (simClock < a.arrival) {
                       const ratio = 1 - (a.arrival - simClock) / 15;
-                      x = 165 + ratio * 185;
+                      x = 215 + ratio * 150;
+                      tokenY = 215 + (trackY - 215) * ratio;
                       stateLabel = `ARR ${a.arrival_str}`;
                     } else if (simClock >= a.arrival && simClock < a.departure) {
                       const ratio =
                         (simClock - a.arrival) /
                         Math.max(1, a.departure - a.arrival);
-                      x = 430 + ratio * 190;
-                      stateLabel = `AT ${a.platform_id} -> ${a.departure_str}`;
+                      x = 395 + ratio * 250;
+                      tokenY = trackY;
+                      stateLabel = `DOCKED · DEP ${a.departure_str}`;
                     } else if (
                       simClock >= a.departure &&
                       simClock < a.departure + 15
                     ) {
                       const ratio = (simClock - a.departure) / 15;
-                      x = 720 + ratio * 190;
+                      x = 735 + ratio * 150;
+                      tokenY = trackY + (215 - trackY) * ratio;
                       stateLabel = "DEPARTING";
                     } else {
-                      x = 945;
-                      stateLabel = "CLEARED";
+                      x = 955;
+                      tokenY = 78 + idx * 78;
+                      stateLabel = `DEP ${a.departure_str}`;
                     }
-
-                    const tokenY =
-                      x < 210 || x > 830
-                        ? 190 + (idx % 2 === 0 ? -16 : 16)
-                        : y;
 
                     const isConflict = conflictingTrains.has(a.train_id);
                     const isDelayed = a.total_delay_minutes > 0;
@@ -1137,49 +1020,61 @@ export const StationMap: React.FC<StationMapProps> = ({
                       ? "#059669"
                       : isDelayed
                       ? "#d97706"
-                      : "#0284c7";
+                      : "#2563eb";
 
                     return (
-                      <g
-                        key={a.train_id}
-                        transform={`translate(${x}, ${tokenY})`}
-                        onClick={() => onSelectTrain(a.train_id)}
-                        style={{ cursor: "pointer" }}
-                        data-testid={`schematic-train-${a.train_id}`}
-                      >
-                        <rect
-                          x="-50"
-                          y="-18"
-                          width="100"
-                          height="36"
-                          rx="8"
-                          fill={fill}
-                          stroke={isSelected ? "#ffffff" : "#bae6fd"}
-                          strokeWidth={isSelected ? "2.6" : "1.3"}
-                        />
-                        <text
-                          x="0"
-                          y="-2"
-                          textAnchor="middle"
-                          fill="#ffffff"
-                          fontSize="11"
-                          fontWeight="800"
+                      <g key={a.train_id}>
+                        {/* Dashed connector from West Approach Queue to Switch SW-101W */}
+                        {simClock < a.arrival - 15 && (
+                          <path
+                            d={`M ${x + 54} ${tokenY} C 175 ${tokenY}, 180 215, 215 215`}
+                            fill="none"
+                            stroke={fill}
+                            strokeWidth="1.5"
+                            strokeDasharray="4 3"
+                            opacity="0.75"
+                          />
+                        )}
+                        <g
+                          transform={`translate(${x}, ${tokenY})`}
+                          onClick={() => onSelectTrain(a.train_id)}
+                          style={{ cursor: "pointer" }}
+                          data-testid={`schematic-train-${a.train_id}`}
                         >
-                          {a.train_id}{" "}
-                          {chg
-                            ? `(${chg.previous_platform}→${a.platform_id})`
-                            : `· ${a.platform_id}`}
-                        </text>
-                        <text
-                          x="0"
-                          y="11"
-                          textAnchor="middle"
-                          fill="#e2e8f0"
-                          fontSize="8.5"
-                          fontFamily="monospace"
-                        >
-                          {stateLabel}
-                        </text>
+                          <rect
+                            x="-56"
+                            y="-15"
+                            width="112"
+                            height="30"
+                            rx="6"
+                            fill={fill}
+                            stroke={isSelected ? "#ffffff" : "#e2e8f0"}
+                            strokeWidth={isSelected ? "2.5" : "1.2"}
+                          />
+                          <text
+                            x="0"
+                            y="-2"
+                            textAnchor="middle"
+                            fill="#ffffff"
+                            fontSize="10.5"
+                            fontWeight="800"
+                          >
+                            {a.train_id}{" "}
+                            {chg
+                              ? `(${chg.previous_platform}→${a.platform_id})`
+                              : `· ${a.platform_id}`}
+                          </text>
+                          <text
+                            x="0"
+                            y="10"
+                            textAnchor="middle"
+                            fill="#f8fafc"
+                            fontSize="8.5"
+                            fontFamily="monospace"
+                          >
+                            {stateLabel}
+                          </text>
+                        </g>
                       </g>
                     );
                   })}
@@ -1188,54 +1083,10 @@ export const StationMap: React.FC<StationMapProps> = ({
           </div>
         )}
 
-        {/* Driver-Friendly Floating Selected Entity Card on Map */}
-        {selectedTrainId &&
-          (() => {
-            const asgn = assignments.find((a) => a.train_id === selectedTrainId);
-            const chg = changes.find((c) => c.train_id === selectedTrainId);
-            if (!asgn) return null;
-            const isConflict = conflictingTrains.has(selectedTrainId);
-            return (
-              <div
-                className="map-driver-hud-card"
-                data-testid="map-driver-card"
-              >
-                <div className="driver-card-head">
-                  <span
-                    className={`driver-signal-dot ${
-                      isConflict || asgn.unresolved
-                        ? "red"
-                        : asgn.total_delay_minutes > 0 || chg?.platform_changed
-                        ? "amber"
-                        : "green"
-                    }`}
-                  />
-                  <strong>DRIVER CAB DISPLAY · TRAIN {asgn.train_id}</strong>
-                  <span className="driver-plat-tag">
-                    {asgn.unresolved
-                      ? "HOLD OUTSIDE STATION"
-                      : `TRACK ${asgn.platform_id}`}
-                  </span>
-                </div>
-                <p className="driver-card-instruction">
-                  {asgn.unresolved
-                    ? `STOP: Train ${asgn.train_id} cannot enter station (${asgn.unresolved_reason}).`
-                    : chg && chg.platform_changed
-                    ? `RE-ROUTED: Proceed to Platform ${asgn.platform_id} (moved from ${chg.previous_platform}). Arrive ${asgn.arrival_str}, depart ${asgn.departure_str}.`
-                    : `PROCEED: Enter Platform ${asgn.platform_id} at ${asgn.arrival_str}, depart at ${asgn.departure_str} (${
-                        asgn.total_delay_minutes > 0
-                          ? `+${asgn.total_delay_minutes}m delay`
-                          : "On Time"
-                      }).`}
-                </p>
-              </div>
-            );
-          })()}
-
         {/* Quick Clickable Train & Platform Selector Pills along Bottom-Left of Map */}
         <div className="map-quick-entities" data-testid="map-entity-selectors">
           <div className="entity-pill-group">
-            <span className="pill-group-label">Trains:</span>
+            <span className="pill-group-label">TRAINS:</span>
             {assignments.map((a) => {
               const isConflict = conflictingTrains.has(a.train_id);
               const isDelayed = a.total_delay_minutes > 0;
@@ -1261,7 +1112,7 @@ export const StationMap: React.FC<StationMapProps> = ({
             })}
           </div>
           <div className="entity-pill-group">
-            <span className="pill-group-label">Platforms:</span>
+            <span className="pill-group-label">TRACKS:</span>
             {platforms.map((p) => (
               <button
                 key={p.id}
@@ -1279,74 +1130,107 @@ export const StationMap: React.FC<StationMapProps> = ({
         </div>
       </div>
 
-      {/* Bottom Simulation Scrubber Bar */}
-      <div className="map-scrubber-footer">
-        <div className="playback-btns">
-          <button
-            type="button"
-            className="hud-btn"
-            onClick={() => setPlaying((p) => !p)}
-            data-testid="sim-play-pause-btn"
-          >
-            {playing ? <Pause size={13} /> : <Play size={13} />}{" "}
-            {playing ? "Pause" : "Play"}
-          </button>
-          <button
-            type="button"
-            className="hud-btn icon-only"
-            onClick={() => setSimClock(Math.max(minTime, simClock - 5))}
-            title="Step backward 5 minutes"
-            data-testid="sim-step-back-btn"
-          >
-            <SkipBack size={13} />
-          </button>
-          <button
-            type="button"
-            className="hud-btn icon-only"
-            onClick={() => setSimClock(Math.min(maxTime, simClock + 5))}
-            title="Step forward 5 minutes"
-            data-testid="sim-step-fwd-btn"
-          >
-            <SkipForward size={13} />
-          </button>
-          <button
-            type="button"
-            className="hud-btn"
-            onClick={() => setSpeed((s) => (s === 1 ? 2 : s === 2 ? 4 : 1))}
-            data-testid="sim-speed-btn"
-          >
-            <FastForward size={12} /> {speed}×
-          </button>
-        </div>
+      {/* Live Driver Cab Instruction Banner + Real-Time Station Telemetry Checkpoint Strip (Replaces Video Player Scrubber) */}
+      <div className="map-telemetry-footer" data-testid="map-telemetry-footer">
+        {selectedTrainId &&
+          (() => {
+            const asgn = assignments.find((a) => a.train_id === selectedTrainId);
+            const chg = changes.find((c) => c.train_id === selectedTrainId);
+            if (!asgn) return null;
+            const isConflict = conflictingTrains.has(selectedTrainId);
+            return (
+              <div
+                className="driver-cab-inline-banner"
+                data-testid="map-driver-card"
+              >
+                <span
+                  className={`driver-signal-dot ${
+                    isConflict || asgn.unresolved
+                      ? "red"
+                      : asgn.total_delay_minutes > 0 || chg?.platform_changed
+                      ? "amber"
+                      : "green"
+                  }`}
+                />
+                <strong>CAB SIGNAL · {asgn.train_id}:</strong>
+                <span className="driver-plat-tag">
+                  {asgn.unresolved
+                    ? "HOLD OUTSIDE STATION"
+                    : `TRACK ${asgn.platform_id}`}
+                </span>
+                <span className="driver-cab-text">
+                  {asgn.unresolved
+                    ? `STOP: Cannot enter station (${asgn.unresolved_reason}).`
+                    : chg && chg.platform_changed
+                    ? `RE-ROUTED ${chg.previous_platform} → ${asgn.platform_id} · Arrive ${asgn.arrival_str}, Depart ${asgn.departure_str} (0m solver hold)`
+                    : `PROCEED Platform ${asgn.platform_id} · ${asgn.arrival_str}–${asgn.departure_str} (${
+                        asgn.total_delay_minutes > 0
+                          ? `+${asgn.total_delay_minutes}m delay`
+                          : "On Time"
+                      })`}
+                </span>
+              </div>
+            );
+          })()}
 
-        <div className="scrubber-track-wrap">
-          <span className="mono-badge">{minToClock(minTime)}</span>
-          <input
-            type="range"
-            min={minTime}
-            max={maxTime}
-            value={Math.max(minTime, Math.min(maxTime, simClock))}
-            onChange={(e) => setSimClock(Number(e.target.value))}
-            className="scrubber-slider"
-            aria-label="Simulation clock scrubber"
-            data-testid="sim-clock-slider"
-          />
-          <span className="mono-badge">{minToClock(maxTime)}</span>
-        </div>
+        <div className="telemetry-checkpoints-row">
+          <div className="telemetry-clock-box">
+            <span className="tele-clock-label">STATION TELEMETRY CLOCK</span>
+            <strong className="clock-readout" data-testid="sim-clock-display">
+              {minToClock(simClock)} IST
+            </strong>
+          </div>
 
-        <div className="scrubber-readout">
-          <strong className="clock-readout" data-testid="sim-clock-display">
-            {minToClock(simClock)}
-          </strong>
-          <button
-            type="button"
-            className="hud-btn"
-            onClick={() => setSimClock(550)}
-            title="Reset clock to 09:10"
-            data-testid="sim-reset-btn"
-          >
-            <RotateCcw size={12} /> 09:10
-          </button>
+          <div className="checkpoint-pills" role="group" aria-label="Operational event checkpoints">
+            {[
+              { min: 540, label: "09:00 Baseline" },
+              { min: 560, label: "09:20 P2 Closes / T101 Arr" },
+              { min: 565, label: "09:25 T103 → P3" },
+              { min: 575, label: "09:35 Dual Occupancy" },
+              { min: 590, label: "09:50 T102 Clear" },
+              { min: 595, label: "09:55 T104 Clear" },
+            ].map((cp) => (
+              <button
+                key={cp.min}
+                type="button"
+                className={`cp-jump-btn ${
+                  Math.abs(simClock - cp.min) <= 3 ? "active" : ""
+                }`}
+                onClick={() => setSimClock(cp.min)}
+              >
+                {cp.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="telemetry-live-kpis">
+            <span className="tele-kpi-chip safe">
+              HEADWAY: ≥{scenario.station?.clearance_minutes ?? 10}m SAFE
+            </span>
+            <span className="tele-kpi-chip info">
+              ACTIVE TRAINS:{" "}
+              {
+                assignments.filter(
+                  (a) =>
+                    !a.unresolved &&
+                    a.arrival !== null &&
+                    a.departure !== null &&
+                    simClock >= a.arrival &&
+                    simClock < a.departure
+                ).length
+              }{" "}
+              DOCKED
+            </span>
+            <button
+              type="button"
+              className={`cp-jump-btn ${playing ? "active" : ""}`}
+              onClick={() => setPlaying((p) => !p)}
+              data-testid="sim-play-pause-btn"
+              title="Toggle live clock auto-advance"
+            >
+              {playing ? "● Live Tick ON" : "○ Auto-Tick"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

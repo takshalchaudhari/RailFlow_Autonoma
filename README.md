@@ -1,165 +1,163 @@
 <div align="center">
 
-<!-- 3D ANIMATED ISOMETRIC STATION SIMULATION HERO -->
-<img src="docs/assets/railflow-3d-animated-hero.svg" alt="RailFlow Autonoma 3D Animated Station Digital Twin" width="100%" />
+<!-- 3D Animated Hero Banner -->
+<img src="./docs/assets/hero-3d-banner.svg" alt="RailFlow Autonoma — 3D Animated Hero Banner" width="100%" />
 
 <br />
 
-# 🚆 RailFlow Autonoma
-### *3D Railway Disruption & Anti-Collision Simulator with Mathematical Safety Firewall*
+# 🚆 RailFlow (`Team Autonoma`)
+### **AI-Assisted Railway Disruption & Anti-Collision Control System**
+**VORTEXA 3.0 Hackathon · Challenge P-03 · Domain 6: Public Systems & Civic Technology**
 
-[![Vortexa 3.0](https://img.shields.io/badge/VORTEXA_3.0-Challenge_P--03-0284c7?style=for-the-badge&logo=railway&logoColor=white)](https://autonoma.noxverse.in)
-[![Live Demo](https://img.shields.io/badge/LIVE_DEMO-autonoma.noxverse.in-10b981?style=for-the-badge&logo=cloudflare&logoColor=white)](https://autonoma.noxverse.in/app?autodemo=1)
-[![Solver](https://img.shields.io/badge/Engine-Google_OR--Tools_CP--SAT-9333ea?style=for-the-badge)](app/engine/scheduler.py)
-[![Safety Firewall](https://img.shields.io/badge/Validator-66%2F66_Tests_Passing-16a34a?style=for-the-badge)](tests/)
-
-**[🌐 Live Judge Overview (`autonoma.noxverse.in`)](https://autonoma.noxverse.in) · [▶️ Launch 1-Click Auto-Demo (`/app?autodemo=1`)](https://autonoma.noxverse.in/app?autodemo=1) · [🚀 1-Command VPS + Cloudflare Tunnel Setup](#-1-command-oracle-vps--cloudflare-tunnel-deployment-autonomanoxversein)**
+[![Live Production Domain](https://img.shields.io/badge/🌐_Live_Demo-autonoma.noxverse.in-2563eb?style=for-the-badge)](https://autonoma.noxverse.in)
+[![Solver Engine](https://img.shields.io/badge/⚙️_Scheduler-Google_OR--Tools_CP--SAT-059669?style=for-the-badge)](./backend/app/services/scheduler.py)
+[![Safety Firewall](https://img.shields.io/badge/🛡️_Safety_Firewall-Independent_Validator-d97706?style=for-the-badge)](./backend/app/services/validator.py)
+[![Voice AI](https://img.shields.io/badge/🎙️_Voice_AI-2--Way_Live_Duplex_+_Auto--Alerts-7c3aed?style=for-the-badge)](./frontend/src/components/VoiceOperatorPanel.tsx)
 
 </div>
 
 ---
 
-## 🎯 Understand RailFlow in 15 Seconds (Judge's Brief)
+## 👥 Meet Team Autonoma (Project Collaborators & Members)
 
-### ❓ What Problem Does This Website Solve?
-At a busy railway station, platforms (`P1`, `P2`, `P3`) are shared physical tracks. Suppose two emergencies happen at **09:20 AM**:
-1. **Train `T101` is delayed by `+20 minutes`** on `Platform P1` (staying until `09:40`, which collides with **`Train T102`** scheduled at `09:30`!).
-2. **`Platform P2` is suddenly closed (`09:20–10:00`)** for maintenance (blocking **`Train T103`** scheduled at `09:25–09:45`!).
+| Avatar | Member Name | GitHub Handle | Core Role & Contribution |
+| :---: | :--- | :--- | :--- |
+| <img src="https://avatars.githubusercontent.com/u/231168688?v=4" width="48" height="48" style="border-radius:50%;" alt="Takshal Chaudhari" /> | **Takshal Chaudhari** | [`@takshalchaudhari`](https://github.com/takshalchaudhari) | **Team Lead** · Full-Stack System Architecture, FastAPI Backend & OR-Tools Integration |
+| <img src="https://avatars.githubusercontent.com/u/276861601?v=4" width="48" height="48" style="border-radius:50%;" alt="Ishwari" /> | **Ishwari** | [`@IshwariByte`](https://github.com/IshwariByte) | **Core Member** · Deterministic CP-SAT Optimization Engine & Independent 6-Rule Safety Validator |
+| <img src="https://avatars.githubusercontent.com/u/281140542?v=4" width="48" height="48" style="border-radius:50%;" alt="Tanishka Gadakh" /> | **Tanishka Gadakh** | [`@tanishkagadakh`](https://github.com/tanishkagadakh) | **Core Member** · Real OpenStreetMap / Esri Geospatial Map, 3D Digital Twin & Live Telemetry UI |
+| <img src="https://avatars.githubusercontent.com/u/314237864?v=4" width="48" height="48" style="border-radius:50%;" alt="Samruddhi Nilkanth" /> | **Samruddhi Nilkanth** | [`@samruddhi-nilkanth`](https://github.com/samruddhi-nilkanth) | **Core Member** · Real-Time Two-Way Duplex Voice AI (ElevenLabs + Web Speech) & Proactive Auto-Alerts |
 
-### 🛑 Why Can't You Just Use ChatGPT / Pure AI?
-Letting an LLM directly assign train tracks is dangerous—AI can hallucinate and put two passenger trains on the same platform at the same time.
+---
 
-### ✅ How RailFlow Autonoma Solves It Safely (4-Layer Architecture)
+## 🎯 For Judges: Understand RailFlow in 10 Seconds
+
+### ❓ The Problem (Why standard AI fails in railways)
+When a train is delayed or a platform closes unexpectedly, human controllers have **seconds** to re-route incoming trains without causing a collision.
+- **If you ask an LLM (like ChatGPT/Gemini) to assign train tracks directly, it can hallucinate** and put two trains on the same track at the same time.
+- **In safety-critical railway operations, AI must NEVER directly control track switches.**
+
+### 💡 Our Solution (The 3-Layer Safety Firewall)
+**RailFlow** combines **conversational AI speed** with **100% mathematical railway safety**:
+1. **🎙️ Layer 1 — Two-Way Voice & Text AI (Input & Explanation Only):** The operator speaks naturally (*"Delay T101 by 20 minutes and close Platform P2 from 09:20 to 10:00"*). The AI extracts structured disruption proposals and **speaks back out loud automatically** whenever an alert or conflict happens—**but a strict code firewall blocks AI from ever assigning a platform**.
+2. **⚙️ Layer 2 — Google OR-Tools CP-SAT Solver (Mathematical Optimization):** Once the operator clicks **Confirm**, our deterministic constraint-programming solver computes the fastest conflict-free timetable in **`< 50ms`**.
+3. **🛡️ Layer 3 — Independent Safety Validator (Zero-Trust Verification):** Before any schedule is shown as `VALID`, a completely separate Python verification service checks **6 hard railway safety laws** (zero track overlap, mandatory **10-minute safety headway**, no closed-platform docking, allowed platform rules, and immutable departed trains). If even 1 rule fails, the schedule is **blocked** and the station stays on the last safe schedule.
 
 <div align="center">
-  <img src="docs/assets/railflow-3d-pipeline.svg" alt="RailFlow 4-Stage Safety Pipeline" width="100%" />
+  <img src="./docs/assets/architecture-3d-pipeline.svg" alt="3-Layer Safety Firewall Architecture" width="100%" />
 </div>
-
-| Stage | Component | What It Does | Safety Guarantee |
-| :--- | :--- | :--- | :--- |
-| **1. Speak / Type** | **AI + Voice Parser** (`app/ai/parser.py`) | Controller speaks or types *"Delay T101 by 20m and close P2 from 09:20 to 10:00"*. | 🚫 **AI is mathematically forbidden from assigning tracks** (`app/ai/schemas.py`). |
-| **2. Sign-Off** | **Human Confirmation Gate** | Controller reviews the staged alert in the queue and clicks **Confirm**. | 👤 **No unconfirmed AI output can ever trigger replanning.** |
-| **3. Solve** | **Google OR-Tools CP-SAT** (`app/engine/scheduler.py`) | Computes the fastest conflict-free recovery schedule across all platforms. | ⚡ **Re-routes `T103` (`P2 → P3`, `0m` delay) & holds `T102`/`T104` with exact `10m` gaps.** |
-| **4. Firewall** | **Independent Validator** (`app/engine/validator.py`) | Separate code path checks all **6 Hard Railway Safety Laws** before activation. | 🛡️ **If any rule fails, the schedule is blocked (`INVALID`) and baseline `v1` stays active.** |
 
 ---
 
-## 🖥️ Visual Tour — Built for Judges, Signallers & Train Drivers
+## 🖥️ Live Control Room Preview (Real Map + Live Analytics + Duplex Voice AI)
 
 <div align="center">
-  <img src="docs/assets/live-3d-twin-preview.png" alt="RailFlow 3D Digital Twin and Judge Story Banner" width="100%" />
-  <p><em>Above: The <b>"What Is This Website?" Judge Storyboard</b>, <b>3-Step Driver Quick Guide</b>, and interactive <b>Three.js 3D Digital Twin</b>.</em></p>
+  <img src="./docs/assets/live-station-map-preview.png" alt="RailFlow Live Control Room Preview" width="100%" />
 </div>
+
+### ✨ What Judges Can Test Live on the Dashboard:
+1. **▶ Watch 1-Click Judge Demo Button:** Runs the entire Challenge P-03 crisis and recovery automatically in 1 click—watch `T103` re-route from closed `P2 -> P3` with **0m delay** while `T102` and `T104` hold for an exact **10-minute anti-collision gap**.
+2. **🛡️ Test Unsafe Schedule (Firewall) Button:** Intentionally injects an illegal 5-minute gap on `Platform P1` (`T101` departing `09:20`, `T102` arriving `09:25`) so judges can watch the **Independent Safety Validator** reject the schedule (`INVALID`) and protect the baseline.
+3. **🎙️ Real-Time Two-Way Duplex Voice AI + Automatic Voice Alerts:**
+   - **Zero Manual Intervention Alerts:** Whenever a train is delayed, a platform closes, a schedule is re-routed, or a safety violation is blocked, the AI **automatically speaks the alert out loud** to the operator.
+   - **Live Two-Way Conversation:** Click **`🎙️ Talk to AI Now (Live)`** and speak naturally—ask *"Which trains are delayed?"* or say *"Delay T101 by 20 minutes"*, and the AI immediately answers you out loud and stages the disruption.
+4. **🗺️ 4 Interactive Station Views (Zero API Key Required):**
+   - **Real Street Map** (Live OpenStreetMap / Esri Street railway corridor)
+   - **Satellite View** (Esri World Imagery aerial view)
+   - **2D Track Diagram** (Interlocking signalling schematic)
+   - **3D Station Twin** (Interactive Three.js WebGL 3D station with animated trains & signals)
+5. **📊 Real-Time Railway Operations Analytics Console:**
+   - **Train Punctuality & Recovery KPIs** (Direct Delay vs. Solver Safety Hold vs. Net Total Delay)
+   - **Platform Capacity & Utilization Bars** (`09:00–10:30` occupied vs. 10m safety buffer vs. closed minutes)
+   - **Interlocking Headway & Anti-Collision Matrix** (Verifying every consecutive train pair has $\ge 10\text{ min}$ clearance)
+   - **Full Train Telemetry & Delay Recovery Ledger** (Baseline vs. Active window, track switches, and exact solver rationale)
+
+---
+
+## 🎬 How the Challenge P-03 Scenario Works (Math Breakdown)
 
 <div align="center">
-  <img src="docs/assets/live-station-map-preview.png" alt="RailFlow 2D Geographic & Signalling Map with Driver Cab HUD" width="100%" />
-  <p><em>Above: Custom <b>Vector Cartographic Basemap</b>, <b>Multi-Aspect Trackside Signals (🟢/🟡/🔴)</b>, <b>Emerald Re-Route Path (P2 → P3)</b>, and <b>Driver Cab Instruction HUD</b>.</em></p>
+  <img src="./docs/assets/station-3d-twin-animated.svg" alt="Animated Central Junction 3-Platform Recovery" width="100%" />
 </div>
 
-### 🕹️ Try the 3-Click Guided Simulation Inside `/app`
-1. **Click `▶ Watch 1-Click Judge Demo`** at the top of the dashboard (or step through `1 Normal Day (v1)` → `2 Stage T101 +20m & Close P2` → `3 Confirm & Re-Route Trains`).
-2. **Inspect the Live Driver Cab Strip:**
-   - 🟠 **`T101` (`Track P1` · `09:20–09:40`):** Delayed `+20m` by initial disruption; occupies `P1` safely.
-   - 🟠 **`T102` (`Track P1` · `09:50–10:10`):** Held `+20m` by solver so it enters `P1` **exactly 10 minutes after `T101` departs at `09:40`**.
-   - 🟢 **`T103` (`Re-Routed P2 → P3` · `09:25–09:45`):** Automatically switched via turnout `SW-101W` onto open `Platform P3` with **0 minutes of added delay!**
-   - 🟠 **`T104` (`Track P3` · `09:55–10:15`):** Held `+15m` so it enters `P3` **exactly 10 minutes after `T103` departs at `09:45`**.
-3. **Click `🛡️ Test Unsafe Schedule (Firewall)`:** Forces two trains onto `P1` with only a 5-minute gap so you can watch the **Independent Safety Validator** reject the candidate (`INVALID`) while keeping the safe schedule active.
+### 1️⃣ Normal Baseline Schedule (`Revision v1`)
+Central Junction has **3 Platforms (`P1`, `P2`, `P3`)**, **4 Passenger Trains (`T101–T104`)**, and a mandatory **10-minute safety clearance** between trains on the same platform:
+
+| Train | Baseline Platform | Arrival | Departure | Status |
+| :---: | :---: | :---: | :---: | :--- |
+| **`T101`** | **Platform P1** | `09:00` | `09:20` | 🟢 On Time |
+| **`T102`** | **Platform P1** | `09:30` | `09:50` | 🟢 Safe (`10m` gap after `T101` leaves at `09:20`) |
+| **`T103`** | **Platform P2** | `09:25` | `09:45` | 🟢 On Time |
+| **`T104`** | **Platform P3** | `09:40` | `10:00` | 🟢 On Time |
+
+### 2️⃣ The Crisis (2 Simultaneous Disruptions)
+- ⚠️ **Disruption 1 (`T101` Delayed +20m):** `T101` now occupies **Platform P1** from **`09:20 to 09:40`** $\rightarrow$ **COLLISION RISK** with `T102` (scheduled `09:30–09:50` on `P1`!).
+- 🚧 **Disruption 2 (`Platform P2` Closed `09:20–10:00`):** Track maintenance shuts down **Platform P2** $\rightarrow$ **BLOCKS** `T103` (scheduled `09:25–09:45` on `P2`!).
+
+### 3️⃣ How RailFlow Solves It (`Revision v2 — OPTIMAL & VALID`)
+| Train | Old Track & Time | **New Track & Time (`v2`)** | Solver Hold | Why OR-Tools & Safety Validator Chose This |
+| :---: | :---: | :---: | :---: | :--- |
+| **`T101`** | `P1` (`09:00–09:20`) | **`P1` (`09:20–09:40`)** | `+0 min` | Absorbs the +20m external delay on **Platform P1**. |
+| **`T102`** | `P1` (`09:30–09:50`) | **`P1` (`09:50–10:10`)** | `+20 min` | Held until `09:50` so it has an exact **10-minute safety gap** after `T101` departs `P1` at `09:40`. |
+| **`T103`** | `P2` (`09:25–09:45`) | **`P3` (`09:25–09:45`)** | **`+0 min`!** | **Re-routed from closed `P2` $\rightarrow$ open `P3`** with **zero additional delay**! |
+| **`T104`** | `P3` (`09:40–10:00`) | **`P3` (`09:55–10:15`)** | `+15 min` | Held until `09:55` so it has an exact **10-minute safety gap** after `T103` departs `P3` at `09:45`. |
 
 ---
 
-## ⚖️ The Six Hard Railway Safety Invariants
+## 💻 Quick Local Setup (Windows / macOS / Linux)
 
-Every candidate schedule is verified against **6 mathematical invariants** in [`app/engine/validator.py`](app/engine/validator.py) (completely independent from the solver in [`app/engine/scheduler.py`](app/engine/scheduler.py)):
-
-1. **Half-Open Interval Occupancy `[arrival, departure)`:** Every train preserves its required dwell time and satisfies `departure > arrival`.
-2. **Zero Platform Overlap + Mandatory 10-Minute Clearance:** For any two trains $A, B$ on the same platform:
-   $$\text{dep}_A + 10 \le \text{arr}_B \quad \text{or} \quad \text{dep}_B + 10 \le \text{arr}_A$$
-3. **Platform Closure Exclusion:** No train can occupy platform $P$ during any active closure window `[close_start, close_end)`.
-4. **Platform Compatibility & Required Track:** Every train's assigned platform must belong to `allowed_platforms` and match `required_platform` if locked.
-5. **Post-Disruption Baseline Monotonicity:** No train can be scheduled to arrive earlier than its effective post-disruption arrival ($\text{arr}_{\text{rev}} \ge \text{arr}_{\text{base}} + \text{delay}$).
-6. **Complete & Authentic Schedule Set:** Every scenario train (`T101`–`T104`) must appear exactly once; `FIXED`/`DEPARTED` trains cannot be moved.
-
----
-
-## ☁️ 1-Command Oracle VPS + Cloudflare Tunnel Deployment (`autonoma.noxverse.in`)
-
-This repository includes two automated deployment scripts engineered specifically for an **Oracle Cloud Free Tier VPS (1 GB RAM, 1 vCPU)** routing to **`https://autonoma.noxverse.in`** via **Cloudflare Tunnel (`cloudflared`)**—**no open inbound firewall ports (`80`/`443`) or manual SSL certificates needed!**
-
-### Why This Runs Smoothly on 1 GB RAM:
-- **2 GB Swap File Auto-Creation:** Prevents Out-Of-Memory (OOM) crashes during `npm run build`.
-- **Single-Process Production Server (`~85 MB RAM`):** FastAPI ([`app/main.py`](app/main.py)) serves both the compiled React SPA (`frontend/dist`) and `/api/v1/*` from `127.0.0.1:8010` using a single Uvicorn worker.
-- **Outbound Cloudflare Tunnel (`cloudflared`):** Connects outbound from `127.0.0.1:8010` to Cloudflare's edge and serves **`https://autonoma.noxverse.in`** with automatic HTTPS.
-
----
-
-### 🚀 Method 1: Zero-Trust Token Tunnel (Fastest — 1 Single Command!)
-
-1. Open **[Cloudflare Zero Trust Dashboard](https://one.dash.cloudflare.com/) → Networks → Tunnels → Create a Tunnel → Cloudflared**.
-2. Name it `railflow-autonoma`, copy your **Tunnel Token** (`eyJhIjoi...`), and add a **Public Hostname**:
-   - **Subdomain:** `autonoma`
-   - **Domain:** `noxverse.in`
-   - **Service Type:** `HTTP` → **URL:** `127.0.0.1:8010`
-3. SSH into your 1 GB Oracle VPS and paste **this single command**:
-
+### 1. Start the FastAPI + OR-Tools Backend (Port `8010`)
 ```bash
-curl -fsSL https://raw.githubusercontent.com/takshalchaudhari/RailFlow_Autonoma/main/deploy_oracle_vps.sh | sudo ELEVENLABS_API_KEY="YOUR_ELEVENLABS_KEY" CF_TUNNEL_TOKEN="PASTE_YOUR_CLOUDFLARE_TUNNEL_TOKEN" bash
-```
-
----
-
-### 🔐 Method 2: CLI-Managed Cloudflare Tunnel (No Dashboard Setup Needed!)
-
-If you don't want to configure the Zero Trust dashboard manually, run these **2 commands** on your VPS—the script will log you into Cloudflare, create the tunnel, automatically route the DNS record for **`autonoma.noxverse.in`**, and start the `cloudflared` daemon:
-
-```bash
-# Step 1: Install Swap + Build App + Start RailFlow on 127.0.0.1:8010
-curl -fsSL https://raw.githubusercontent.com/takshalchaudhari/RailFlow_Autonoma/main/deploy_oracle_vps.sh | sudo ELEVENLABS_API_KEY="YOUR_ELEVENLABS_KEY" bash
-
-# Step 2: Authenticate Cloudflare CLI & Auto-Route https://autonoma.noxverse.in -> 127.0.0.1:8010
-sudo bash /opt/railflow/setup_cloudflare_tunnel.sh
-```
-*(When Step 2 prints a `https://dash.cloudflare.com/argotunnel?...` link, open it in your browser, select **`noxverse.in`**, and press Authorize—the script will automatically create the tunnel, bind `autonoma.noxverse.in` DNS, and launch the background service!)*
-
-### 🔍 Useful VPS Service Commands
-```bash
-sudo systemctl status railflow      # Check FastAPI + React SPA server (:8010)
-sudo systemctl status cloudflared   # Check Cloudflare Tunnel (autonoma.noxverse.in)
-sudo journalctl -u railflow -f      # View live RailFlow logs
-```
-
----
-
-## 💻 Local Development Quickstart (Windows / macOS / Linux)
-
-```bash
-# 1. Clone repository & install Python backend dependencies
-git clone https://github.com/takshalchaudhari/RailFlow_Autonoma.git
-cd RailFlow_Autonoma
+cd backend
 python -m venv .venv
-# Windows: .\.venv\Scripts\Activate.ps1   |   Linux/macOS: source .venv/bin/activate
+# Windows: .venv\Scripts\activate | Linux/macOS: source .venv/bin/activate
 pip install -r requirements.txt
-
-# 2. Run all 66 automated backend & safety validator tests
-python -m pytest -v
-python scripts/verify_live_demo.py
-
-# 3. Build frontend & launch Single-Process Server on http://localhost:8010/app
-cd frontend
-npm install
-npm run build
-cd ..
 python -m uvicorn app.main:app --host 0.0.0.0 --port 8010
 ```
 
+### 2. Start the React + Vite Frontend (Port `5180`)
+```bash
+cd frontend
+npm install
+npm run dev -- --host 0.0.0.0 --port 5180
+```
+Open **`http://localhost:5180/app`** in Chrome, Edge, or Brave.
+
+### 3. Run the Automated Test Suites (58/58 Passing)
+```bash
+# Backend Pytest Suite (49 tests: CP-SAT solver, 6-rule validator, AI boundary firewall, voice endpoints)
+cd backend && pytest
+
+# Frontend Vitest Suite (9 tests: API normalization, UI rendering, safety firewall gates)
+cd frontend && npm test
+```
+
 ---
 
-## 📋 Vortexa 3.0 Compliance — Declared Tech Stack & AI Usage Disclosure
+## ☁️ 1-Command Deployment on 1GB RAM / 1 vCPU Oracle Free Tier VPS + Cloudflare Tunnel (`autonoma.noxverse.in`)
 
-In accordance with **Vortexa 3.0 Official Hackathon Rules (Rule 2 & Rule 4)**, all languages, frameworks, libraries, AI tools, and APIs are declared below:
+Because an **Oracle Cloud Free Tier (`VM.Standard.E2.1.Micro` — 1 vCPU, 1 GB RAM)** has limited memory, we include an automated deployment script ([`deploy/setup_vps_cloudflare.sh`](./deploy/setup_vps_cloudflare.sh)) that:
+1. Creates a **2 GB Linux Swapfile** first so `npm run build` and `ortools` never hit Out-Of-Memory (`OOM`).
+2. Compiles the React frontend into static files served by **Nginx** (`~8 MB RAM`) and runs **FastAPI + Uvicorn** with a single worker (`--workers 1`, `~95 MB RAM`).
+3. Connects **Cloudflare Zero-Trust Tunnel (`cloudflared`)** directly to **`https://autonoma.noxverse.in`** with **zero open firewall ports** required.
 
-- **Backend:** Python 3.12, FastAPI, Uvicorn, Pydantic v2, Google OR-Tools CP-SAT (`ortools`), SQLite3, `pytest` + `httpx`.
-- **Frontend:** React 18, TypeScript, Vite, Three.js (`three` WebGL 3D station digital twin), Custom SVG Vector Cartographic & Signalling Engine, Lucide Icons.
-- **AI & Voice Boundaries (With 100% Free Offline Fallbacks):**
-  - **Disruption Parser & Schedule Explainer (`app/ai/`):** Optional OpenAI/Gemini-compatible API strictly validated by Pydantic schemas (`app/ai/schemas.py`), defaulting to a **100% deterministic offline regex parser & template explainer** (`app/ai/fallback_parser.py`).
-  - **Voice Dispatch (`app/services/voice_service.py`):** Optional server-side ElevenLabs TTS (`eleven_multilingual_v2`), defaulting to native browser `window.speechSynthesis` & `SpeechRecognition`.
-- **Operating Boundary:** Fictional simulation environment only (`Vortexa Central Station`); never interfaces with live railway hardware.
+### Run on Your Ubuntu VPS in 2 Commands:
+```bash
+git clone https://github.com/takshalchaudhari/RailFlow_Autonoma.git /opt/railflow
+cd /opt/railflow
+sudo CLOUDFLARE_TUNNEL_TOKEN="YOUR_CLOUDFLARE_TUNNEL_TOKEN" \
+     ELEVENLABS_API_KEY="YOUR_ELEVENLABS_KEY_OPTIONAL" \
+     bash deploy/setup_vps_cloudflare.sh
+```
+
+In your **Cloudflare Zero Trust Dashboard** (`Networks` $\rightarrow$ `Tunnels` $\rightarrow$ `Public Hostname`):
+- **Subdomain:** `autonoma`
+- **Domain:** `noxverse.in`
+- **Service Type:** `HTTP`
+- **URL:** `localhost:80`
+
+---
+
+<div align="center">
+  <b>Built with ❤️ by Team Autonoma (`@takshalchaudhari`, `@IshwariByte`, `@tanishkagadakh`, `@samruddhi-nilkanth`) for Vortexa 3.0 · Challenge P-03</b><br/>
+  <sub>FICTIONAL SIMULATION — NO LIVE RAILWAY DATA</sub>
+</div>

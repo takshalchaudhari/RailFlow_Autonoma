@@ -33,6 +33,14 @@ export interface VoiceOperatorPanelProps {
   onStageDisruptionDrafts: (drafts: DisruptionInput[], rawText: string) => void;
   onSelectTrain: (trainId: string) => void;
   onSelectPlatform: (platformId: string) => void;
+  proactiveAlert?: {
+    id: string;
+    text: string;
+    severity: "info" | "warn" | "critical";
+  } | null;
+  autoAlertsEnabled?: boolean;
+  externalListenTrigger?: number;
+  onVoiceStateChange?: (state: VoiceInteractionState, interim: string) => void;
 }
 
 export type VoiceInteractionState =
@@ -57,6 +65,10 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
   onStageDisruptionDrafts,
   onSelectTrain,
   onSelectPlatform,
+  proactiveAlert,
+  autoAlertsEnabled = true,
+  externalListenTrigger = 0,
+  onVoiceStateChange,
 }) => {
   const [voiceStatus, setVoiceStatus] = useState<VoiceStatusResponse | null>(
     null
@@ -68,13 +80,13 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
   const [interimTranscript, setInterimTranscript] = useState<string>("");
   const [interactionState, setInteractionState] =
     useState<VoiceInteractionState>("idle");
-  const [continuousTurn, setContinuousTurn] = useState<boolean>(false);
+  const [continuousTurn, setContinuousTurn] = useState<boolean>(true);
   const [ttsNotice, setTtsNotice] = useState<string | null>(null);
   const [messages, setMessages] = useState<VoiceMessage[]>([
     {
       id: "welcome-msg",
       role: "assistant",
-      text: "RailFlow Voice Operator ready. Click Start Talking to speak directly, or ask about affected trains, validation findings, or next-30-minute movements.",
+      text: "RailFlow Duplex Voice AI active. Speak anytime or enable hands-free mic — I will answer you out loud immediately and automatically announce any track closures, delays, or safety alerts.",
       timestamp: new Date().toLocaleTimeString([], {
         hour: "2-digit",
         minute: "2-digit",
@@ -90,6 +102,14 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
   const submittingRef = useRef<boolean>(false);
   const continuousTurnRef = useRef<boolean>(continuousTurn);
   continuousTurnRef.current = continuousTurn;
+  const latestInterimRef = useRef<string>("");
+  const lastSpokenAlertIdRef = useRef<string>("");
+
+  useEffect(() => {
+    if (onVoiceStateChange) {
+      onVoiceStateChange(interactionState, interimTranscript);
+    }
+  }, [interactionState, interimTranscript, onVoiceStateChange]);
 
   useEffect(() => {
     let mounted = true;
@@ -167,6 +187,7 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
         // ignore
       }
     }
+    latestInterimRef.current = "";
     setInterimTranscript("");
     setInteractionState("idle");
   };
@@ -177,7 +198,7 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
         window.speechSynthesis.cancel();
         const utter = new SpeechSynthesisUtterance(text);
         utter.lang = "en-US";
-        utter.rate = 1.03;
+        utter.rate = 1.04;
         setInteractionState("speaking");
         utter.onend = () => {
           setInteractionState("idle");
@@ -185,15 +206,18 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
         };
         utter.onerror = () => {
           setInteractionState("idle");
+          if (onDone) onDone();
         };
         window.speechSynthesis.speak(utter);
         return true;
       } catch {
         setInteractionState("idle");
+        if (onDone) onDone();
         return false;
       }
     }
     setInteractionState("idle");
+    if (onDone) onDone();
     return false;
   };
 
@@ -214,16 +238,70 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
       speakWithFreeBrowserTTS(fallbackText, onDone);
     };
     audioRef.current.play().catch(() => {
-      // Browser autoplay restriction or decode failure — fall back to Web Speech
       speakWithFreeBrowserTTS(fallbackText, onDone);
     });
   };
+
+  const speakTextImmediately = async (
+    text: string,
+    onDone?: () => void
+  ): Promise<string | null> => {
+    if (selectedVoiceId === "free_browser_tts" || !voiceStatus?.configured) {
+      speakWithFreeBrowserTTS(text, onDone);
+      return null;
+    }
+    try {
+      const tts = await synthesizeVoiceSpeech(text, selectedVoiceId);
+      if (tts.audioUrl) {
+        playAudioUrl(tts.audioUrl, text, onDone);
+        return tts.audioUrl;
+      }
+      speakWithFreeBrowserTTS(text, onDone);
+      return null;
+    } catch {
+      speakWithFreeBrowserTTS(text, onDone);
+      return null;
+    }
+  };
+
+  // Automatic Proactive Voice Alerts (Zero Manual Intervention)
+  useEffect(() => {
+    if (
+      !proactiveAlert ||
+      !autoAlertsEnabled ||
+      proactiveAlert.id === lastSpokenAlertIdRef.current
+    ) {
+      return;
+    }
+    lastSpokenAlertIdRef.current = proactiveAlert.id;
+    const alertMsg: VoiceMessage = {
+      id: `auto-alert-${proactiveAlert.id}`,
+      role: "assistant",
+      text: proactiveAlert.text,
+      timestamp: new Date().toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+      }),
+      intent: `auto_${proactiveAlert.severity}_alert`,
+    };
+    setMessages((prev) => [...prev, alertMsg]);
+    // Speak immediately out loud without waiting for any manual button click
+    void speakTextImmediately(proactiveAlert.text);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [proactiveAlert, autoAlertsEnabled]);
+
+  // Allow external trigger from Topbar Live Voice Button
+  useEffect(() => {
+    if (externalListenTrigger > 0) {
+      handleToggleMic();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [externalListenTrigger]);
 
   const handleSubmitCommand = async (rawInput?: string, fromSpeech = false) => {
     const text = (rawInput ?? utterance).trim();
     if (!text || submittingRef.current) return;
 
-    // Stop any currently playing speech before processing the new turn
     stopAllAudio();
     submittingRef.current = true;
 
@@ -238,6 +316,7 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
     };
     setMessages((prev) => [...prev, opMsg]);
     if (!rawInput) setUtterance("");
+    latestInterimRef.current = "";
     setInterimTranscript("");
     setInteractionState("processing");
     setTtsNotice(null);
@@ -249,40 +328,29 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
         sim_clock: simClock,
       });
 
-      // Focus referenced entity on map if any
       if (resp.referenced_trains.length > 0) {
         onSelectTrain(resp.referenced_trains[0]);
       } else if (resp.referenced_platforms.length > 0) {
         onSelectPlatform(resp.referenced_platforms[0]);
       }
 
-      let audioUrl: string | null = null;
+      // Automatically stage parsed disruptions when spoken by operator!
+      if (resp.normalized_disruptions && resp.normalized_disruptions.length > 0) {
+        onStageDisruptionDrafts(resp.normalized_disruptions, text);
+      }
+
       const resumeMicIfContinuous = () => {
         if (fromSpeech && continuousTurnRef.current) {
           setTimeout(() => {
             startMicrophoneCapture();
-          }, 350);
+          }, 300);
         }
       };
 
-      if (selectedVoiceId === "free_browser_tts") {
-        speakWithFreeBrowserTTS(resp.reply_text, resumeMicIfContinuous);
-      } else if (voiceStatus?.configured) {
-        const tts = await synthesizeVoiceSpeech(
-          resp.reply_text,
-          selectedVoiceId
-        );
-        if (tts.audioUrl) {
-          audioUrl = tts.audioUrl;
-        } else {
-          if (tts.error) {
-            setTtsNotice(`${tts.error} (Switched to Free Browser Voice)`);
-          }
-          speakWithFreeBrowserTTS(resp.reply_text, resumeMicIfContinuous);
-        }
-      } else {
-        speakWithFreeBrowserTTS(resp.reply_text, resumeMicIfContinuous);
-      }
+      const audioUrl = await speakTextImmediately(
+        resp.reply_text,
+        resumeMicIfContinuous
+      );
 
       const aiMsg: VoiceMessage = {
         id: `ai-${Date.now()}`,
@@ -300,21 +368,18 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
         audioUrl,
       };
       setMessages((prev) => [...prev, aiMsg]);
-
-      if (audioUrl) {
-        playAudioUrl(audioUrl, resp.reply_text, resumeMicIfContinuous);
-      }
     } catch (err) {
       setInteractionState("error");
+      const fallbackErr =
+        err instanceof Error
+          ? `Command failed: ${err.message}`
+          : "Failed to process voice command.";
       setMessages((prev) => [
         ...prev,
         {
           id: `err-${Date.now()}`,
           role: "assistant",
-          text:
-            err instanceof Error
-              ? `Command failed: ${err.message}`
-              : "Failed to process voice command.",
+          text: fallbackErr,
           timestamp: new Date().toLocaleTimeString([], {
             hour: "2-digit",
             minute: "2-digit",
@@ -322,6 +387,7 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
           intent: "error",
         },
       ]);
+      speakWithFreeBrowserTTS(fallbackErr);
     } finally {
       submittingRef.current = false;
       setInteractionState((prev) =>
@@ -338,12 +404,11 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
     if (!SpeechRec) {
       setInteractionState("error");
       setTtsNotice(
-        "Browser speech recognition is unavailable in this browser. Type your spoken command below and press Send to hear the ElevenLabs reply."
+        "Browser microphone speech recognition unavailable. Use the instant voice bar below to talk to the AI dispatcher."
       );
       return;
     }
 
-    // Interrupt any active TTS playback when the operator starts talking
     stopAllAudio();
 
     try {
@@ -351,9 +416,11 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
       const rec = new (SpeechRec as any)();
       rec.lang = "en-US";
       rec.interimResults = true;
+      rec.continuous = false;
       rec.maxAlternatives = 1;
 
       let finalCaptured = "";
+      latestInterimRef.current = "";
 
       rec.onstart = () => {
         setInterimTranscript("");
@@ -374,14 +441,16 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
             interim += chunk;
           }
         }
-        if (interim) {
-          setInterimTranscript(interim);
+        if (interim.trim()) {
+          latestInterimRef.current = interim.trim();
+          setInterimTranscript(interim.trim());
         }
         if (finalStr.trim()) {
           finalCaptured = finalStr.trim();
+          latestInterimRef.current = "";
           setInterimTranscript("");
           setUtterance(finalCaptured);
-          handleSubmitCommand(finalCaptured, true);
+          void handleSubmitCommand(finalCaptured, true);
         }
       };
 
@@ -391,20 +460,26 @@ export const VoiceOperatorPanel: React.FC<VoiceOperatorPanelProps> = ({
         if (errCode === "not-allowed" || errCode === "service-not-allowed") {
           setInteractionState("error");
           setTtsNotice(
-            "Microphone permission denied by browser. Allow microphone access or use the live transcript input below."
+            "Microphone permission blocked by browser. Allow mic access in the URL bar or click any quick voice command below."
           );
         } else if (errCode === "no-speech") {
           setInteractionState("idle");
-          setTtsNotice("No speech detected. Click Start Talking when ready.");
         } else {
           setInteractionState("idle");
-          setTtsNotice(
-            `Speech capture interrupted (${errCode}). You can edit or submit your transcript below.`
-          );
         }
       };
 
       rec.onend = () => {
+        // Crucial fix: if Chrome ended speech before marking isFinal, submit the captured interim words immediately!
+        if (!finalCaptured && latestInterimRef.current.trim()) {
+          const pending = latestInterimRef.current.trim();
+          finalCaptured = pending;
+          latestInterimRef.current = "";
+          setInterimTranscript("");
+          setUtterance(pending);
+          void handleSubmitCommand(pending, true);
+          return;
+        }
         setInterimTranscript("");
         setInteractionState((prev) =>
           prev === "listening" && !finalCaptured ? "idle" : prev

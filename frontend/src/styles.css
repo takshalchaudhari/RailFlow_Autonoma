@@ -2581,8 +2581,1006 @@ body {
   display: none !important;
 }
 
+/* ==========================================================================
+   LIVE TWO-WAY DUPLEX VOICE AI STRIP & TOPBAR CONTROLS
+   ========================================================================== */
+.live-duplex-voice-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 16px;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%);
+  border: 1.5px solid #93c5fd;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.08);
+  flex-wrap: wrap;
+}
+.live-duplex-voice-strip.listening {
+  background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+  border-color: #f43f5e;
+  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.16);
+}
+.live-duplex-voice-strip.speaking {
+  background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.16);
+}
+.duplex-voice-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 280px;
+}
+.duplex-mic-orb {
+  width: 38px;
+  height: 38px;
+  border-radius: 999px;
+  border: 2px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+.duplex-mic-orb.active {
+  background: #dc2626;
+  border-color: #dc2626;
+  animation: pulseOrb 1.2s infinite;
+}
+.duplex-mic-orb.speaking {
+  background: #059669;
+  border-color: #059669;
+  animation: pulseOrbGreen 1.2s infinite;
+}
+@keyframes pulseOrb {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+@keyframes pulseOrbGreen {
+  0% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0.5); }
+  70% { box-shadow: 0 0 0 10px rgba(5, 150, 105, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(5, 150, 105, 0); }
+}
+.duplex-voice-status {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.duplex-voice-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.duplex-voice-badge {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #1e40af;
+}
+.duplex-auto-tag {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #475569;
+}
+.duplex-auto-tag.on {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.duplex-voice-transcript {
+  font-size: 12px;
+  color: #334155;
+  font-weight: 500;
+}
+.duplex-voice-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.duplex-talk-btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.duplex-talk-btn.active {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+.duplex-preset-btn,
+.duplex-drawer-btn {
+  padding: 6px 11px;
+  border-radius: 7px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.duplex-preset-btn:hover,
+.duplex-drawer-btn:hover {
+  background: #eff6ff;
+  border-color: #60a5fa;
+  color: #1d4ed8;
+}
+.voice-live-btn.listening {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+}
+.voice-live-btn.speaking {
+  background: #059669 !important;
+  color: #ffffff !important;
+  border-color: #059669 !important;
+}
+.auto-alert-toggle-pill {
+  padding: 5px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #cbd5e1;
+  background: #f1f5f9;
+  color: #475569;
+  cursor: pointer;
+}
+.auto-alert-toggle-pill.on {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+.telemetry-clock-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+}
+.telemetry-live-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+.telemetry-mode-badge {
+  font-size: 10px;
+  font-weight: 800;
+  color: #1d4ed8;
+  letter-spacing: 0.04em;
+}
 
+/* ==========================================================================
+   STATION MAP TELEMETRY FOOTER (REPLACES VIDEO SCRUBBER)
+   ========================================================================== */
+.map-telemetry-footer {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border-top: 1px solid #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.telemetry-checkpoints-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.telemetry-checkpoints-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.04em;
+}
+.telemetry-pulse-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #2563eb;
+}
+.telemetry-checkpoint-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.telemetry-checkpoint-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.telemetry-checkpoint-btn strong {
+  color: #2563eb;
+  font-family: "JetBrains Mono", monospace;
+}
+.telemetry-checkpoint-btn.active {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+.telemetry-checkpoint-btn.active strong {
+  color: #ffffff;
+}
+.telemetry-live-kpis {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.telemetry-kpi-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+}
+.telemetry-kpi-chip.ok {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
 
+/* ==========================================================================
+   REAL-TIME RAILWAY OPERATIONS DATA & ANALYTICS CONSOLE
+   ========================================================================== */
+.realtime-analytics-console {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.analytics-console-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+.analytics-console-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #0f172a;
+}
+.analytics-live-pill {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #dbeafe;
+  color: #1d4ed8;
+  border: 1px solid #93c5fd;
+}
+.analytics-console-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 11.5px;
+  color: #475569;
+  font-weight: 600;
+}
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(195px, 1fr));
+  gap: 10px;
+}
+.analytics-kpi-card {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.analytics-kpi-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.03em;
+}
+.kpi-tag {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 999px;
+}
+.kpi-tag.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+.kpi-tag.warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+.kpi-tag.info {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.analytics-kpi-value {
+  font-size: 18px;
+  font-weight: 800;
+  color: #0f172a;
+  font-family: "JetBrains Mono", monospace;
+}
+.analytics-kpi-bar {
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.analytics-kpi-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+.analytics-kpi-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+.analytics-split-row {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 12px;
+}
+@media (max-width: 1100px) {
+  .analytics-split-row {
+    grid-template-columns: 1fr;
+  }
+}
+.analytics-subpanel {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.analytics-subpanel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #0f172a;
+}
+.analytics-subpanel-head span {
+  font-size: 11px;
+  color: #64748b;
+}
+.platform-util-list,
+.clearance-telemetry-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.platform-util-row {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.platform-util-row.closed {
+  background: #fff1f2;
+  border-color: #fecdd3;
+}
+.platform-util-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+}
+.util-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+.util-badge.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+.util-badge.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.platform-util-bar-wrap {
+  height: 7px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+}
+.platform-util-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+}
+.platform-util-metrics {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  color: #475569;
+}
+.clearance-telemetry-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 10px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 11.5px;
+}
+.clearance-plat-pill {
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-family: "JetBrains Mono", monospace;
+}
+.clearance-pair-info {
+  flex: 1;
+  color: #334155;
+}
+.clearance-gap-badge {
+  font-weight: 800;
+  font-size: 10.5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+.clearance-gap-badge.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+.clearance-gap-badge.danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.analytics-ledger-wrap {
+  overflow-x: auto;
+}
+.analytics-ledger-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.analytics-ledger-table th {
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 800;
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid #cbd5e1;
+}
+.analytics-ledger-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+  background: #ffffff;
+}
+.ledger-badge {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+.ledger-badge.ok {
+  background: #dcfce7;
+  color: #166534;
+}
+.ledger-badge.warn {
+  background: #fef3c7;
+  color: #92400e;
+}
+.ledger-plat-badge {
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background: #dbeafe;
+  color: #1e40af;
+}
+.ledger-plat-badge.changed {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
 
+/* ==========================================================================
+   TEAM AUTONOMA COLLABORATORS SHOWCASE
+   ========================================================================== */
+.rail-team-box {
+  margin-top: 8px;
+  padding: 10px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.rail-team-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #1d4ed8;
+  letter-spacing: 0.04em;
+}
+.rail-team-members {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.rail-team-member-chip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 8px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 11px;
+  color: #0f172a;
+}
+.rail-team-member-chip:hover {
+  border-color: #60a5fa;
+  background: #eff6ff;
+}
+.rail-team-member-chip span {
+  font-size: 10px;
+  color: #64748b;
+}
+.team-autonoma-showcase-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+.team-members-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+.team-member-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+.team-member-card:hover {
+  border-color: #2563eb;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+  transform: translateY(-1px);
+}
+.team-member-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 2px solid #2563eb;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.team-member-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.team-member-info strong {
+  font-size: 12.5px;
+  color: #0f172a;
+}
+.team-member-handle {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2563eb;
+}
+.team-member-role,
+.team-member-info small {
+  font-size: 10.5px;
+  color: #475569;
+  line-height: 1.3;
+}
+.akpi-label {
+  font-size: 10px;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.04em;
+}
+.akpi-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f172a;
+}
+.akpi-value.txt-green {
+  color: #15803d;
+}
+.akpi-value.txt-red {
+  color: #dc2626;
+}
+.akpi-sub {
+  font-size: 11px;
+  color: #64748b;
+}
+.analytics-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.analytics-box-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+.analytics-box-head strong {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: 0.02em;
+}
+.analytics-box-head span {
+  font-size: 11px;
+  font-weight: 700;
+  color: #2563eb;
+}
+.plat-util-row {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.plat-util-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: #0f172a;
+}
+.plat-util-meta span {
+  font-size: 11px;
+  color: #475569;
+}
+.plat-util-bar-bg {
+  height: 8px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+}
+.plat-util-fill {
+  height: 100%;
+}
+.plat-util-fill.occupied {
+  background: #2563eb;
+}
+.plat-util-fill.buffer {
+  background: #38bdf8;
+}
+.plat-util-fill.closed {
+  background: #dc2626;
+}
+.analytics-mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.analytics-mini-table th {
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-weight: 800;
+  text-align: left;
+  padding: 7px 10px;
+  border-bottom: 1px solid #cbd5e1;
+}
+.analytics-mini-table td {
+  padding: 7px 10px;
+  border-bottom: 1px solid #e2e8f0;
+  color: #1e293b;
+}
+.analytics-mini-table tr:hover td {
+  background: #f0f9ff;
+}
+.mini-safety-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.mini-safety-pill.safe {
+  background: #dcfce7;
+  color: #166534;
+}
+.mini-safety-pill.unsafe {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.mini-safety-pill.rerouted {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
 
+/* ==========================================================================
+   EXACT SIDEBAR TEAM LINKS, DUPLEX STRIP & MAP TELEMETRY CHECKPOINTS
+   ========================================================================== */
+.rail-team-box {
+  margin: 8px 10px !important;
+  padding: 10px !important;
+  background: rgba(30, 41, 59, 0.75) !important;
+  border: 1px solid #334155 !important;
+  border-radius: 8px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 5px !important;
+}
+.rail-team-title {
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  color: #60a5fa !important;
+  letter-spacing: 0.05em !important;
+  margin-bottom: 2px !important;
+}
+.rail-member-link {
+  display: flex !important;
+  flex-direction: column !important;
+  padding: 5px 8px !important;
+  background: rgba(15, 23, 42, 0.7) !important;
+  border: 1px solid #334155 !important;
+  border-radius: 6px !important;
+  text-decoration: none !important;
+  transition: all 0.15s ease !important;
+}
+.rail-member-link:hover {
+  border-color: #3b82f6 !important;
+  background: rgba(37, 99, 235, 0.2) !important;
+}
+.rail-member-link strong {
+  font-size: 11px !important;
+  color: #f8fafc !important;
+  font-weight: 700 !important;
+}
+.rail-member-link small {
+  font-size: 9.5px !important;
+  color: #94a3b8 !important;
+}
 
+.ldv-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+.ldv-left > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ldv-left strong {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #1e3a8a;
+  letter-spacing: 0.02em;
+}
+.ldv-sub {
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 500;
+  line-height: 1.35;
+}
+.ldv-pulse-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  background: #2563eb;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+}
+.ldv-pulse-dot.listening {
+  background: #dc2626;
+  animation: pulseOrb 1.2s infinite;
+}
+.ldv-pulse-dot.speaking {
+  background: #059669;
+  animation: pulseOrbGreen 1.2s infinite;
+}
+.ldv-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.ldv-talk-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1.5px solid #2563eb;
+  background: #2563eb;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+.ldv-talk-btn:hover {
+  background: #1d4ed8;
+}
+.ldv-talk-btn.active {
+  background: #dc2626;
+  border-color: #dc2626;
+}
+.ldv-secondary-btn {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ldv-secondary-btn:hover {
+  background: #eff6ff;
+  border-color: #60a5fa;
+  color: #1d4ed8;
+}
+
+.driver-cab-inline-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #0f172a;
+  flex-wrap: wrap;
+}
+.driver-lamp-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.driver-lamp-dot.green {
+  background: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+}
+.driver-lamp-dot.amber {
+  background: #d97706;
+  box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.2);
+}
+.driver-lamp-dot.red {
+  background: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.2);
+}
+.driver-plat-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 5px;
+  background: #dbeafe;
+  color: #1e40af;
+}
+.driver-cab-text {
+  color: #334155;
+  font-weight: 600;
+}
+.telemetry-clock-box {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.tele-clock-label {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 0.04em;
+}
+.checkpoint-pills {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.cp-jump-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.cp-jump-btn:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+.cp-jump-btn.active {
+  background: #2563eb;
+  border-color: #1d4ed8;
+  color: #ffffff;
+}
+.tele-kpi-chip {
+  padding: 4px 9px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 800;
+}
+.tele-kpi-chip.safe {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #86efac;
+}
+.tele-kpi-chip.info {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #93c5fd;
+}
