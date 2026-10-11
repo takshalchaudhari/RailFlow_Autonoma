@@ -101,13 +101,13 @@ export default function LandingPage() {
                   <li>
                     <strong>Train T101 (+20m Delay):</strong> Stuck on{" "}
                     <code>Platform P1</code> until <code>09:40</code> — clashes
-                    with <strong>Train T103</strong> arriving at{" "}
-                    <code>09:35</code>!
+                    with <strong>Train T102</strong> arriving at{" "}
+                    <code>09:30</code>!
                   </li>
                   <li>
                     <strong>Platform P2 Closed (09:20–10:00):</strong> Blocks{" "}
-                    <strong>Train T102</strong> scheduled at{" "}
-                    <code>09:30–09:50</code>!
+                    <strong>Train T103</strong> scheduled at{" "}
+                    <code>09:25–09:45</code>!
                   </li>
                 </ul>
               </div>
@@ -119,14 +119,15 @@ export default function LandingPage() {
                 </div>
                 <ul>
                   <li>
-                    <strong>Train T102 Re-Routed (P2 → P3):</strong> Moved from
+                    <strong>Train T103 Re-Routed (P2 → P3):</strong> Moved from
                     closed <code>P2</code> to open <code>P3</code> (
-                    <code>09:30–09:50</code>) with <strong>0m delay</strong>!
+                    <code>09:25–09:45</code>) with <strong>0m delay</strong>!
                   </li>
                   <li>
-                    <strong>Train T103 Held (+15m on P1):</strong> Arrives at{" "}
-                    <code>09:50</code> — exactly <strong>10m after</strong>{" "}
-                    <code>T101</code> departs at <code>09:40</code>.
+                    <strong>Trains T102 &amp; T104 Held Safely:</strong>{" "}
+                    <code>T102</code> arrives at <code>09:50</code> on{" "}
+                    <code>P1</code> and <code>T104</code> at <code>09:55</code>{" "}
+                    on <code>P3</code> (exact <strong>10m safety gaps</strong>).
                   </li>
                 </ul>
               </div>

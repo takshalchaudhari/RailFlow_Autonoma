@@ -583,10 +583,10 @@ export default function DashboardLayout() {
         allow_partial_diagnostic: false,
       });
       await refreshScenarioBundle(freshScenario.id, newVer.id);
-      setSimClock(575); // 09:35 AM — right when T101 is on P1 and T102 is on P3!
-      setSelectedTrainId("T102");
+      setSimClock(575); // 09:35 AM — right when T101 is on P1 and T103 is re-routed to P3!
+      setSelectedTrainId("T103");
       setNotice(
-        `Judge Demo Complete (v${newVer.version_number} VALID): Train T102 automatically re-routed from closed Platform P2 → Platform P3 (0m delay), and Train T103 held on P1 until 09:50 to keep the 10-minute safety gap!`
+        `Judge Demo Complete (v${newVer.version_number} VALID): Train T103 re-routed from closed Platform P2 → P3 (09:25–09:45, 0m delay!), T102 held to 09:50 on P1, and T104 held to 09:55 on P3 (10m safety gaps verified).`
       );
     } catch (err) {
       handleApiException(err, "Judge Auto-Demo Failed");
@@ -912,9 +912,9 @@ export default function DashboardLayout() {
                   <span className="jsc-step">1. THE BASELINE (v1)</span>
                   <strong>4 Trains · 3 Platforms · 10m Safety Gap</strong>
                   <p>
-                    <code>T101</code> (P1 09:00–09:20), <code>T102</code> (P2
-                    09:30–09:50), <code>T103</code> (P1 09:35–09:55),{" "}
-                    <code>T104</code> (P3 10:00–10:20). All signals{" "}
+                    <code>T101</code> (P1 09:00–09:20), <code>T102</code> (P1
+                    09:30–09:50), <code>T103</code> (P2 09:25–09:45),{" "}
+                    <code>T104</code> (P3 09:40–10:00). All signals{" "}
                     <b className="txt-green">GREEN</b>.
                   </p>
                 </div>
@@ -928,9 +928,9 @@ export default function DashboardLayout() {
                   <strong>T101 +20m Late &amp; Track P2 Closed!</strong>
                   <p>
                     <code>T101</code> now stays on <b>P1 until 09:40</b>{" "}
-                    (colliding with <code>T103</code> at 09:35!), while{" "}
+                    (colliding with <code>T102</code> at 09:30!), while{" "}
                     <b>Platform P2 closes 09:20–10:00</b> (blocking{" "}
-                    <code>T102</code>!).
+                    <code>T103</code>!).
                   </p>
                 </div>
 
@@ -966,9 +966,10 @@ export default function DashboardLayout() {
                         Conflict Solved — Zero Collisions!
                       </strong>
                       <p>
-                        <code>T102</code> switched <b>P2 → P3</b> (0m delay!)
-                        and <code>T103</code> held until <b>09:50 on P1</b>{" "}
-                        (exact 10m safety buffer after <code>T101</code>).
+                        <code>T103</code> switched <b>P2 → P3</b> (0m delay!),{" "}
+                        <code>T102</code> held to <b>09:50 on P1</b>, and{" "}
+                        <code>T104</code> held to <b>09:55 on P3</b> (exact 10m
+                        safety gaps).
                       </p>
                     </>
                   ) : (
@@ -976,8 +977,9 @@ export default function DashboardLayout() {
                       <strong>Ready to Solve</strong>
                       <p>
                         Click <b>&ldquo;▶ Watch 1-Click Judge Demo&rdquo;</b>{" "}
-                        above to watch OR-Tools re-route <code>T102</code>{" "}
-                        (P2 → P3) and hold <code>T103</code> (+15m).
+                        above to watch OR-Tools re-route <code>T103</code>{" "}
+                        (P2 → P3) and hold <code>T102</code> &amp;{" "}
+                        <code>T104</code> safely.
                       </p>
                     </>
                   )}
