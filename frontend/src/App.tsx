@@ -87,6 +87,16 @@ export default function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/app" element={<DashboardLayout />} />
+        <Route path="/app/:tab" element={<DashboardLayout />} />
+        <Route path="/map" element={<DashboardLayout />} />
+        <Route path="/overview" element={<DashboardLayout />} />
+        <Route path="/timetable" element={<DashboardLayout />} />
+        <Route path="/disruptions" element={<DashboardLayout />} />
+        <Route path="/replanning" element={<DashboardLayout />} />
+        <Route path="/validation" element={<DashboardLayout />} />
+        <Route path="/revisions" element={<DashboardLayout />} />
+        <Route path="/settings" element={<DashboardLayout />} />
+        <Route path="*" element={<DashboardLayout />} />
       </Routes>
     </ErrorBoundary>
   );

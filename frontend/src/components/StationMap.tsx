@@ -382,6 +382,7 @@ export const StationMap: React.FC<StationMapProps> = ({
             onSelectPlatform={onSelectPlatform}
             layers={layers}
             cameraMode={cameraMode}
+            geoBasemapStyle={geoBasemapStyle}
             fitTrigger={fitTrigger}
             zoomDeltaTrigger={zoomDeltaTrigger}
             onWebGLFailure={(reason) => {
@@ -955,7 +956,7 @@ export const StationMap: React.FC<StationMapProps> = ({
                   );
                 })}
 
-                {/* Trains on Track Berths & Non-Overlapping West Staging Slots */}
+                {/* Trains on Track Berths & Non-Overlapping West/East Staging Slots + Active Route Vectors */}
                 {layers.trains &&
                   assignments.map((a, idx) => {
                     if (
@@ -971,39 +972,26 @@ export const StationMap: React.FC<StationMapProps> = ({
                       platforms.findIndex((p) => p.id === a.platform_id)
                     );
                     const trackY = 118 + pIdx * 102;
-                    let x = 96;
+                    let x = 92;
                     let tokenY = trackY;
                     let stateLabel = "APPROACHING";
 
-                    if (simClock < a.arrival - 15) {
-                      // Dedicated vertical queue on West Approach so waiting trains NEVER overlap
+                    if (simClock < a.arrival) {
+                      // Dedicated vertical queue on West Approach so waiting trains NEVER overlap or cover SW-101W
                       x = 92;
-                      tokenY = 78 + idx * 78;
-                      stateLabel = `DUE ${a.arrival_str}`;
-                    } else if (simClock < a.arrival) {
-                      const ratio = 1 - (a.arrival - simClock) / 15;
-                      x = 215 + ratio * 150;
-                      tokenY = 215 + (trackY - 215) * ratio;
+                      tokenY = 82 + idx * 78;
                       stateLabel = `ARR ${a.arrival_str}`;
                     } else if (simClock >= a.arrival && simClock < a.departure) {
                       const ratio =
                         (simClock - a.arrival) /
                         Math.max(1, a.departure - a.arrival);
-                      x = 395 + ratio * 250;
+                      x = 405 + ratio * 230;
                       tokenY = trackY;
                       stateLabel = `DOCKED · DEP ${a.departure_str}`;
-                    } else if (
-                      simClock >= a.departure &&
-                      simClock < a.departure + 15
-                    ) {
-                      const ratio = (simClock - a.departure) / 15;
-                      x = 735 + ratio * 150;
-                      tokenY = trackY + (215 - trackY) * ratio;
-                      stateLabel = "DEPARTING";
                     } else {
                       x = 955;
-                      tokenY = 78 + idx * 78;
-                      stateLabel = `DEP ${a.departure_str}`;
+                      tokenY = 82 + idx * 78;
+                      stateLabel = `CLEARED ${a.departure_str}`;
                     }
 
                     const isConflict = conflictingTrains.has(a.train_id);
@@ -1024,16 +1012,42 @@ export const StationMap: React.FC<StationMapProps> = ({
 
                     return (
                       <g key={a.train_id}>
-                        {/* Dashed connector from West Approach Queue to Switch SW-101W */}
-                        {simClock < a.arrival - 15 && (
+                        {/* Full Active Route Path from West Queue through SW-101W into Assigned Track */}
+                        {layers.routes && simClock < a.arrival && (
                           <path
-                            d={`M ${x + 54} ${tokenY} C 175 ${tokenY}, 180 215, 215 215`}
+                            d={`M ${x + 56} ${tokenY} C 175 ${tokenY}, 182 215, 215 215 C 268 215, 268 ${trackY}, 315 ${trackY}`}
                             fill="none"
                             stroke={fill}
-                            strokeWidth="1.5"
-                            strokeDasharray="4 3"
-                            opacity="0.75"
+                            strokeWidth={isMoved || isSelected ? "2.8" : "1.8"}
+                            strokeDasharray="6 4"
+                            opacity="0.9"
                           />
+                        )}
+                        {/* Re-Routed Bypass Callout Badge on Switch Turnout */}
+                        {layers.routes && isMoved && (
+                          <g transform={`translate(248, ${trackY + 26})`}>
+                            <rect
+                              x="-62"
+                              y="-10"
+                              width="124"
+                              height="18"
+                              rx="4"
+                              fill="rgba(6, 78, 59, 0.95)"
+                              stroke="#10b981"
+                              strokeWidth="1.2"
+                            />
+                            <text
+                              x="0"
+                              y="2"
+                              textAnchor="middle"
+                              fill="#6ee7b7"
+                              fontSize="8.5"
+                              fontFamily="monospace"
+                              fontWeight="800"
+                            >
+                              BYPASS {chg?.previous_platform}→{a.platform_id} (0m HOLD)
+                            </text>
+                          </g>
                         )}
                         <g
                           transform={`translate(${x}, ${tokenY})`}

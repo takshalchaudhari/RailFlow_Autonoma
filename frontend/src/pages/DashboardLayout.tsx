@@ -153,7 +153,23 @@ export function ValidationBadge({
 }
 
 export default function DashboardLayout() {
-  const [activePage, setActivePage] = useState<NavPage>("map");
+  const [activePage, setActivePage] = useState<NavPage>(() => {
+    const seg = window.location.pathname
+      .replace(/^\/app\/?/, "")
+      .replace(/^\//, "")
+      .toLowerCase();
+    const valid: NavPage[] = [
+      "map",
+      "overview",
+      "timetable",
+      "disruptions",
+      "replanning",
+      "validation",
+      "revisions",
+      "settings",
+    ];
+    return valid.includes(seg as NavPage) ? (seg as NavPage) : "map";
+  });
   const [rightTab, setRightTab] = useState<"inspector" | "voice">("inspector");
   const [rightCollapsed, setRightCollapsed] = useState<boolean>(false);
 
@@ -532,7 +548,19 @@ export default function DashboardLayout() {
     setLoading(true);
     setErrorBanner(null);
     try {
-      const baseVer = baselineForReplan || scenario.active_version_id;
+      const activeAlreadyHasDisruption = (
+        currentVersion?.applied_disruptions ?? []
+      ).some((ad) =>
+        cleanDisruptions.some(
+          (cd) =>
+            cd.type === ad.type &&
+            (cd.train_id === ad.train_id || cd.platform_id === ad.platform_id)
+        )
+      );
+      const baseVer =
+        activeAlreadyHasDisruption && baselineVersion
+          ? baselineVersion.id
+          : baselineForReplan || scenario.active_version_id;
       const newVer = await replanScenario(scenario.id, {
         baseline_version_id: baseVer,
         confirmed: true,
@@ -634,6 +662,7 @@ export default function DashboardLayout() {
     try {
       setNotice("Judge Demo (1/3): Loading clean baseline station timetable (v1)…");
       const freshScenario = await createDemoScenario("standard");
+      setBaselineForReplan(freshScenario.active_version_id);
       const demoDisruptions: DisruptionInput[] = [
         { type: "train_delay", train_id: "T101", delay_minutes: 20 },
         {
@@ -655,6 +684,9 @@ export default function DashboardLayout() {
         allow_partial_diagnostic: false,
       });
       await refreshScenarioBundle(freshScenario.id, newVer.id);
+      setStagedDisruptions([]);
+      setOperatorConfirmed(false);
+      setErrorBanner(null);
       setSimClock(575); // 09:35 AM — right when T101 is on P1 and T103 is re-routed to P3!
       setSelectedTrainId("T103");
       setNotice(
@@ -701,7 +733,14 @@ export default function DashboardLayout() {
                 className={`rail-nav-btn ${
                   activePage === item.id ? "active" : ""
                 }`}
-                onClick={() => setActivePage(item.id)}
+                onClick={() => {
+                  setActivePage(item.id);
+                  window.history.replaceState(
+                    null,
+                    "",
+                    item.id === "map" ? "/app" : `/app/${item.id}`
+                  );
+                }}
                 data-testid={`nav-${item.id}`}
               >
                 <Icon size={16} />

@@ -33,6 +33,7 @@ export interface ThreeStationProps {
   onSelectPlatform: (platformId: string) => void;
   layers: MapLayerVisibility;
   cameraMode: "isometric" | "topdown";
+  geoBasemapStyle?: "osm" | "satellite" | "vector";
   fitTrigger: number;
   zoomDeltaTrigger: { seq: number; delta: number };
   onWebGLFailure?: (reason: string) => void;
@@ -53,14 +54,14 @@ function createBadgeTexture(
   bgHex = "rgba(8, 17, 34, 0.92)"
 ): THREE.CanvasTexture {
   const canvas = document.createElement("canvas");
-  canvas.width = 256;
+  canvas.width = 280;
   canvas.height = 96;
   const ctx = canvas.getContext("2d");
   if (ctx) {
-    ctx.clearRect(0, 0, 256, 96);
+    ctx.clearRect(0, 0, 280, 96);
     ctx.fillStyle = bgHex;
     ctx.beginPath();
-    ctx.roundRect(6, 6, 244, 84, 14);
+    ctx.roundRect(6, 6, 268, 84, 14);
     ctx.fill();
 
     ctx.lineWidth = 4;
@@ -68,28 +69,142 @@ function createBadgeTexture(
     ctx.stroke();
 
     ctx.fillStyle = "#f8fafc";
-    ctx.font = "bold 30px Inter, Segoe UI, sans-serif";
+    ctx.font = "bold 28px Inter, Segoe UI, sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(title, 128, 44);
+    ctx.fillText(title, 140, 44);
 
     ctx.fillStyle = accentHex;
-    ctx.font = "600 20px JetBrains Mono, monospace";
-    ctx.fillText(subtitle, 128, 74);
+    ctx.font = "700 19px JetBrains Mono, monospace";
+    ctx.fillText(subtitle, 140, 74);
   }
   const tex = new THREE.CanvasTexture(canvas);
   tex.needsUpdate = true;
   return tex;
 }
 
+/**
+ * Creates a 2048x1024 geospatial ground texture with real OpenStreetMap / Esri
+ * map tiles stitched onto the 3D ground plane, plus immediate high-detail
+ * cartographic corridor roads, river, sector blocks, and lat/lon graticule.
+ */
+function createRealGeoGroundTexture(
+  style: "osm" | "satellite" | "vector"
+): THREE.CanvasTexture {
+  const canvas = document.createElement("canvas");
+  canvas.width = 2048;
+  canvas.height = 1024;
+  const ctx = canvas.getContext("2d");
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.ClampToEdgeWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.anisotropy = 4;
+
+  const drawFallbackCartography = () => {
+    if (!ctx) return;
+    const isSat = style === "satellite";
+    ctx.fillStyle = isSat ? "#0f241d" : "#e2e8f0";
+    ctx.fillRect(0, 0, 2048, 1024);
+
+    // Subtle urban blocks & parklands
+    ctx.fillStyle = isSat ? "rgba(20, 83, 45, 0.45)" : "#dcfce7";
+    ctx.fillRect(80, 70, 520, 240);
+    ctx.fillRect(1420, 680, 520, 260);
+
+    // River Vortexa Estuary
+    ctx.strokeStyle = isSat ? "#0284c7" : "#38bdf8";
+    ctx.lineWidth = 68;
+    ctx.lineCap = "round";
+    ctx.beginPath();
+    ctx.moveTo(0, 860);
+    ctx.bezierCurveTo(520, 790, 980, 950, 1520, 850);
+    ctx.bezierCurveTo(1780, 800, 1920, 740, 2048, 760);
+    ctx.stroke();
+
+    // Arterial Road Network
+    ctx.strokeStyle = isSat ? "rgba(148, 163, 184, 0.45)" : "#cbd5e1";
+    ctx.lineWidth = 18;
+    ctx.beginPath();
+    ctx.moveTo(380, 0);
+    ctx.lineTo(490, 1024);
+    ctx.moveTo(1620, 0);
+    ctx.lineTo(1510, 1024);
+    ctx.moveTo(0, 210);
+    ctx.lineTo(2048, 230);
+    ctx.stroke();
+
+    // Graticule grid
+    ctx.strokeStyle = isSat
+      ? "rgba(56, 189, 248, 0.16)"
+      : "rgba(37, 99, 235, 0.14)";
+    ctx.lineWidth = 2;
+    for (let x = 0; x <= 2048; x += 128) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, 1024);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= 1024; y += 128) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(2048, y);
+      ctx.stroke();
+    }
+    tex.needsUpdate = true;
+  };
+
+  drawFallbackCartography();
+
+  if (style !== "vector" && ctx) {
+    const tiles = [
+      { x: 46824, y: 27418, col: 0, row: 0 },
+      { x: 46825, y: 27418, col: 1, row: 0 },
+      { x: 46826, y: 27418, col: 2, row: 0 },
+      { x: 46827, y: 27418, col: 3, row: 0 },
+      { x: 46824, y: 27419, col: 0, row: 1 },
+      { x: 46825, y: 27419, col: 1, row: 1 },
+      { x: 46826, y: 27419, col: 2, row: 1 },
+      { x: 46827, y: 27419, col: 3, row: 1 },
+    ];
+    const template =
+      style === "satellite"
+        ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/16/{y}/{x}"
+        : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/16/{y}/{x}";
+
+    tiles.forEach((t) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        ctx.drawImage(img, t.col * 512, t.row * 512, 512, 512);
+        // Subtle railway corridor tint & grid overlay so 3D tracks pop clearly
+        ctx.fillStyle =
+          style === "satellite"
+            ? "rgba(6, 16, 30, 0.22)"
+            : "rgba(15, 23, 42, 0.08)";
+        ctx.fillRect(t.col * 512, t.row * 512, 512, 512);
+        ctx.strokeStyle = "rgba(37, 99, 235, 0.22)";
+        ctx.lineWidth = 2;
+        ctx.strokeRect(t.col * 512, t.row * 512, 512, 512);
+        tex.needsUpdate = true;
+      };
+      img.src = template
+        .replace("{x}", String(t.x))
+        .replace("{y}", String(t.y));
+    });
+  }
+
+  return tex;
+}
+
 function buildPlatformCurve(zOffset: number): THREE.CatmullRomCurve3 {
   return new THREE.CatmullRomCurve3([
-    new THREE.Vector3(-46, 0.35, zOffset * 0.18),
-    new THREE.Vector3(-28, 0.35, zOffset * 0.25),
+    new THREE.Vector3(-48, 0.35, 0),
+    new THREE.Vector3(-30, 0.35, 0),
     new THREE.Vector3(-19, 0.35, zOffset),
     new THREE.Vector3(0, 0.35, zOffset),
     new THREE.Vector3(19, 0.35, zOffset),
-    new THREE.Vector3(28, 0.35, zOffset * 0.25),
-    new THREE.Vector3(46, 0.35, zOffset * 0.18),
+    new THREE.Vector3(30, 0.35, 0),
+    new THREE.Vector3(48, 0.35, 0),
   ]);
 }
 
@@ -106,18 +221,39 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
   onSelectPlatform,
   layers,
   cameraMode,
+  geoBasemapStyle = "osm",
   fitTrigger,
   zoomDeltaTrigger,
   onWebGLFailure,
 }) => {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const groundMatRef = useRef<THREE.MeshStandardMaterial | null>(null);
   const [webglReady, setWebglReady] = useState<boolean>(true);
+  const [localGeoStyle, setLocalGeoStyle] = useState<"osm" | "satellite">(
+    geoBasemapStyle === "satellite" ? "satellite" : "osm"
+  );
+
+  useEffect(() => {
+    if (geoBasemapStyle === "satellite" || geoBasemapStyle === "osm") {
+      setLocalGeoStyle(geoBasemapStyle);
+    }
+  }, [geoBasemapStyle]);
+
+  // Update 3D ground plane texture whenever localGeoStyle changes
+  useEffect(() => {
+    if (groundMatRef.current) {
+      const newTex = createRealGeoGroundTexture(localGeoStyle);
+      groundMatRef.current.map = newTex;
+      groundMatRef.current.color.setHex(0xffffff);
+      groundMatRef.current.needsUpdate = true;
+    }
+  }, [localGeoStyle]);
 
   // Spherical camera state for smooth Orbit + Pan + Zoom
   const camSpherical = useRef({
     radius: 56,
-    theta: 0.38,
-    phi: 0.92,
+    theta: 0.34,
+    phi: 0.88,
     target: new THREE.Vector3(0, 0, 0),
   });
 
@@ -156,8 +292,8 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       camSpherical.current.theta = 0;
       camSpherical.current.radius = 52;
     } else {
-      camSpherical.current.phi = 0.92;
-      camSpherical.current.theta = 0.36;
+      camSpherical.current.phi = 0.88;
+      camSpherical.current.theta = 0.34;
       camSpherical.current.radius = 56;
     }
   }, [cameraMode]);
@@ -171,8 +307,8 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       camSpherical.current.theta = 0;
       camSpherical.current.radius = 52;
     } else {
-      camSpherical.current.phi = 0.92;
-      camSpherical.current.theta = 0.36;
+      camSpherical.current.phi = 0.88;
+      camSpherical.current.theta = 0.34;
       camSpherical.current.radius = 56;
     }
   }, [fitTrigger, cameraMode]);
@@ -204,7 +340,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
     try {
       renderer = new THREE.WebGLRenderer({
         antialias: true,
-        alpha: false,
+        alpha: true,
         powerPreference: "high-performance",
       });
     } catch (err) {
@@ -221,7 +357,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFShadowMap;
-    renderer.setClearColor(0x060d1a, 1);
+    renderer.setClearColor(0x0b172a, 0);
 
     // Clear any stale child canvas from Strict Mode remounts
     mount.innerHTML = "";
@@ -243,46 +379,54 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
     );
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x060d1a, 0.0065);
 
-    const camera = new THREE.PerspectiveCamera(40, width / height, 0.5, 300);
+    const camera = new THREE.PerspectiveCamera(40, width / height, 0.5, 320);
 
     // Lighting
-    const ambient = new THREE.AmbientLight(0x9ec5fe, 1.15);
+    const ambient = new THREE.AmbientLight(0xdbeafe, 1.35);
     scene.add(ambient);
 
-    const hemi = new THREE.HemisphereLight(0xdbeafe, 0x0f172a, 0.9);
-    hemi.position.set(0, 50, 0);
+    const hemi = new THREE.HemisphereLight(0xf0f9ff, 0x1e293b, 1.05);
+    hemi.position.set(0, 55, 0);
     scene.add(hemi);
 
-    const dirLight = new THREE.DirectionalLight(0xf8fafc, 1.55);
-    dirLight.position.set(28, 46, 24);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    dirLight.position.set(28, 48, 24);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
     dirLight.shadow.mapSize.height = 1024;
     dirLight.shadow.camera.near = 5;
-    dirLight.shadow.camera.far = 130;
-    const d = 48;
+    dirLight.shadow.camera.far = 140;
+    const d = 50;
     dirLight.shadow.camera.left = -d;
     dirLight.shadow.camera.right = d;
     dirLight.shadow.camera.top = d;
     dirLight.shadow.camera.bottom = -d;
     scene.add(dirLight);
 
-    // Ground & Tactical Grid
-    const groundGeo = new THREE.PlaneGeometry(160, 90);
+    // Real Geospatial Ground Plane (OpenStreetMap / Esri Satellite Stitched Texture)
+    const groundGeo = new THREE.PlaneGeometry(165, 92);
+    const initialTex = createRealGeoGroundTexture(localGeoStyle);
     const groundMat = new THREE.MeshStandardMaterial({
-      color: 0x081223,
-      roughness: 0.92,
-      metalness: 0.08,
+      map: initialTex,
+      color: 0xffffff,
+      roughness: 0.88,
+      metalness: 0.06,
     });
+    groundMatRef.current = groundMat;
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
     ground.receiveShadow = true;
     scene.add(ground);
 
-    const grid = new THREE.GridHelper(150, 50, 0x1e3a5f, 0x0f223d);
-    grid.position.y = 0.02;
+    // Subtle railway yard coordinate grid slightly above ground
+    const grid = new THREE.GridHelper(156, 36, 0x2563eb, 0x475569);
+    grid.position.y = 0.03;
+    const gridMat = grid.material as THREE.Material;
+    if (gridMat) {
+      gridMat.transparent = true;
+      gridMat.opacity = 0.24;
+    }
     scene.add(grid);
 
     // Scene Layer Groups
@@ -300,15 +444,15 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
     scene.add(routesGroup);
     scene.add(trainsGroup);
 
-    // Build static Tracks, Sleepers, Catenary Portals & Platforms
+    // Build static Tracks, Sleepers, Turnout Switches, Catenary Portals & Platforms
     const currentPlatforms = latestProps.current.platforms;
     const platformCurves = new Map<string, THREE.CatmullRomCurve3>();
     const platformSignalLights = new Map<string, THREE.Mesh>();
 
     const railMat = new THREE.MeshStandardMaterial({
-      color: 0x94a3b8,
-      metalness: 0.78,
-      roughness: 0.28,
+      color: 0xcbd5e1,
+      metalness: 0.82,
+      roughness: 0.25,
     });
     const sleeperMat = new THREE.MeshStandardMaterial({
       color: 0x334155,
@@ -319,13 +463,43 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       roughness: 0.95,
     });
 
+    // West & East Interlocking Switch Nodes (SW-101W & SW-102E)
+    [
+      { x: -30, id: "SW-101W", sub: "WEST APPROACH SWITCH" },
+      { x: 30, id: "SW-102E", sub: "EAST DEPARTURE SWITCH" },
+    ].forEach((sw) => {
+      const swDisk = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.15, 1.15, 0.28, 20),
+        new THREE.MeshStandardMaterial({
+          color: 0x2563eb,
+          emissive: 0x1d4ed8,
+          emissiveIntensity: 0.4,
+        })
+      );
+      swDisk.position.set(sw.x, 0.22, 0);
+      tracksGroup.add(swDisk);
+
+      const swTex = createBadgeTexture(
+        sw.id,
+        sw.sub,
+        "#60a5fa",
+        "rgba(15, 23, 42, 0.92)"
+      );
+      const swSprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: swTex, depthTest: false })
+      );
+      swSprite.position.set(sw.x, 3.2, 0);
+      swSprite.scale.set(5.2, 1.8, 1);
+      tracksGroup.add(swSprite);
+    });
+
     currentPlatforms.forEach((plat, idx) => {
       const zOffset = (idx - (currentPlatforms.length - 1) / 2) * 9.5;
       const curve = buildPlatformCurve(zOffset);
       platformCurves.set(plat.id, curve);
 
       // Ballast bed along curve
-      const points = curve.getSpacedPoints(70);
+      const points = curve.getSpacedPoints(74);
       for (let i = 0; i < points.length; i++) {
         const pt = points[i];
         const tangent = curve.getTangent(i / (points.length - 1));
@@ -333,10 +507,10 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
 
         // Sleeper
         const sleeper = new THREE.Mesh(
-          new THREE.BoxGeometry(0.32, 0.12, 2.1),
+          new THREE.BoxGeometry(0.32, 0.14, 2.2),
           sleeperMat
         );
-        sleeper.position.set(pt.x, 0.08, pt.z);
+        sleeper.position.set(pt.x, 0.09, pt.z);
         sleeper.rotation.y = -angle;
         tracksGroup.add(sleeper);
       }
@@ -349,31 +523,31 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
           return pt
             .clone()
             .add(normal.multiplyScalar(railOffset))
-            .setY(0.22);
+            .setY(0.24);
         });
         const railCurve = new THREE.CatmullRomCurve3(offsetPts);
-        const railGeo = new THREE.TubeGeometry(railCurve, 64, 0.07, 6, false);
+        const railGeo = new THREE.TubeGeometry(railCurve, 68, 0.075, 6, false);
         const railMesh = new THREE.Mesh(railGeo, railMat);
         tracksGroup.add(railMesh);
       });
 
       // Ballast strip under platform track
       const ballast = new THREE.Mesh(
-        new THREE.BoxGeometry(42, 0.1, 2.8),
+        new THREE.BoxGeometry(42, 0.12, 2.9),
         ballastMat
       );
-      ballast.position.set(0, 0.05, zOffset);
+      ballast.position.set(0, 0.06, zOffset);
       tracksGroup.add(ballast);
 
-      // Platform Deck ( positioned immediately North of the track at zOffset - 2.9 )
+      // Platform Deck (positioned immediately North of the track at zOffset - 2.95)
       const platZ = zOffset - 2.95;
       const platGroup = new THREE.Group();
       platGroup.userData = { platformId: plat.id };
 
       const deckMat = new THREE.MeshStandardMaterial({
         color: 0x1e293b,
-        roughness: 0.65,
-        metalness: 0.15,
+        roughness: 0.6,
+        metalness: 0.18,
       });
       const deck = new THREE.Mesh(new THREE.BoxGeometry(36, 0.9, 3.1), deckMat);
       deck.position.set(0, 0.45, platZ);
@@ -384,7 +558,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
 
       // Yellow safety tactile edge strip
       const safetyStrip = new THREE.Mesh(
-        new THREE.BoxGeometry(36, 0.06, 0.22),
+        new THREE.BoxGeometry(36, 0.06, 0.24),
         new THREE.MeshBasicMaterial({ color: 0xfacc15 })
       );
       safetyStrip.position.set(0, 0.92, platZ + 1.4);
@@ -397,7 +571,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         metalness: 0.5,
         roughness: 0.35,
         transparent: true,
-        opacity: 0.88,
+        opacity: 0.9,
       });
       const canopy = new THREE.Mesh(
         new THREE.BoxGeometry(28, 0.22, 2.8),
@@ -426,17 +600,17 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         platGroup.add(col);
       });
 
-      // Platform Sign Sprite (P1, P2, P3)
+      // Platform Sign Sprite (PLATFORM P1, P2, P3)
       const signTex = createBadgeTexture(
-        plat.id,
-        `GAP ${plat.clearance_minutes ?? plat.min_gap_minutes ?? 10}M`,
+        `PLATFORM ${plat.id}`,
+        `CLEARANCE ≥${plat.clearance_minutes ?? plat.min_gap_minutes ?? 10}M`,
         "#38bdf8"
       );
       const signSprite = new THREE.Sprite(
         new THREE.SpriteMaterial({ map: signTex, depthTest: false })
       );
-      signSprite.position.set(-15.5, 4.9, platZ);
-      signSprite.scale.set(4.5, 1.7, 1);
+      signSprite.position.set(-14.5, 5.1, platZ);
+      signSprite.scale.set(5.2, 1.8, 1);
       signSprite.userData = { platformId: plat.id };
       platGroup.add(signSprite);
 
@@ -456,7 +630,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       buildingsGroup.add(sigHead);
 
       const sigLamp = new THREE.Mesh(
-        new THREE.SphereGeometry(0.18, 12, 12),
+        new THREE.SphereGeometry(0.2, 12, 12),
         new THREE.MeshBasicMaterial({ color: 0x10b981 })
       );
       sigLamp.position.set(19.45, 2.65, zOffset - 1.35);
@@ -465,15 +639,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
 
       platformsGroup.add(platGroup);
     });
-
-    // Siding Track on South Side
-    const sidingZ = 16.5;
-    const sidingBallast = new THREE.Mesh(
-      new THREE.BoxGeometry(30, 0.1, 2.4),
-      ballastMat
-    );
-    sidingBallast.position.set(-12, 0.05, sidingZ);
-    tracksGroup.add(sidingBallast);
 
     // Overhead Electrification Catenary Portals
     [-22, -8, 8, 22].forEach((portalX) => {
@@ -521,7 +686,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       new THREE.MeshBasicMaterial({
         color: 0x38bdf8,
         transparent: true,
-        opacity: 0.32,
+        opacity: 0.36,
       })
     );
     glassFront.position.set(0, 2.4, -16.7);
@@ -545,23 +710,11 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       new THREE.MeshBasicMaterial({
         color: 0x22d3ee,
         transparent: true,
-        opacity: 0.5,
+        opacity: 0.55,
       })
     );
     towerGlass.position.set(12, 8.1, -20.5);
     stationBuilding.add(towerGlass);
-
-    // South-West Maintenance Depot
-    const depot = new THREE.Mesh(
-      new THREE.BoxGeometry(14, 3.8, 5.5),
-      new THREE.MeshStandardMaterial({
-        color: 0x17253b,
-        roughness: 0.7,
-      })
-    );
-    depot.position.set(-20, 1.9, 21.5);
-    depot.castShadow = true;
-    stationBuilding.add(depot);
 
     buildingsGroup.add(stationBuilding);
 
@@ -614,7 +767,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       if (!isDragging) return;
       isDragging = false;
       const movedDist = Math.hypot(e.clientX - downX, e.clientY - downY);
-      if (movedDist > 6) return; // Dragged, not clicked
+      if (movedDist > 6) return;
 
       const rect = renderer.domElement.getBoundingClientRect();
       pointer.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -622,7 +775,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
 
       raycaster.setFromCamera(pointer, camera);
 
-      // 1. Check raycast intersections on trains first, then platforms
       const trainHits = raycaster.intersectObjects(trainsGroup.children, true);
       for (const hit of trainHits) {
         let obj: THREE.Object3D | null = hit.object;
@@ -635,9 +787,8 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         }
       }
 
-      // 2. Proximity screen-space fallback for trains (makes small train meshes easy to click)
       let closestTrainId: string | null = null;
-      let closestTrainDist = 38; // pixel threshold
+      let closestTrainDist = 38;
       trainsGroup.children.forEach((tGroup) => {
         const tid = tGroup.userData?.trainId;
         if (!tid) return;
@@ -657,7 +808,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         return;
       }
 
-      // 3. Check raycast intersections on platforms
       const platHits = raycaster.intersectObjects(
         platformsGroup.children,
         true
@@ -702,7 +852,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
     const resizeObs = new ResizeObserver(handleResize);
     resizeObs.observe(mount);
 
-    // Dynamic state synchronization helper (runs each frame cleanly)
     let lastDynamicSignature = "";
 
     const syncDynamicObjects = () => {
@@ -745,7 +894,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       if (sig === lastDynamicSignature) return;
       lastDynamicSignature = sig;
 
-      // Clear previous dynamic meshes
       const clearGroup = (grp: THREE.Group) => {
         while (grp.children.length > 0) {
           const child = grp.children[0];
@@ -756,7 +904,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       clearGroup(routesGroup);
       clearGroup(trainsGroup);
 
-      // Update Platform Closures & Signals
+      // 1. Update Platform Closures, Signals & Active Platform Route Tubes
       plats.forEach((plat, idx) => {
         const zOffset = (idx - (plats.length - 1) / 2) * 9.5;
         const pClosures = disrs.filter(
@@ -769,6 +917,9 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         const hasConflictOnPlat = valErrs.some(
           (err) => err.platform_id === plat.id
         );
+        const hasReassignedOnto = chgs.some(
+          (c) => c.proposed_platform === plat.id && c.platform_changed
+        );
 
         const sigLamp = platformSignalLights.get(plat.id);
         if (sigLamp) {
@@ -777,6 +928,54 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
             mat.color.setHex(0xef4444);
           } else {
             mat.color.setHex(0x10b981);
+          }
+        }
+
+        // Draw Full-Corridor 3D Active Route Tube on every platform
+        const curve = platformCurves.get(plat.id);
+        if (curve) {
+          const isClosedPlat = pClosures.length > 0;
+          const routeColor = isClosedPlat
+            ? 0xef4444
+            : hasReassignedOnto
+            ? 0x10b981
+            : selPid === plat.id
+            ? 0x3b82f6
+            : 0x38bdf8;
+          const routeRadius =
+            hasReassignedOnto || selPid === plat.id ? 0.24 : 0.14;
+          const routeGeo = new THREE.TubeGeometry(
+            curve,
+            68,
+            routeRadius,
+            8,
+            false
+          );
+          const routeMat = new THREE.MeshBasicMaterial({
+            color: routeColor,
+            transparent: true,
+            opacity: isClosedPlat ? 0.55 : hasReassignedOnto ? 0.85 : 0.45,
+          });
+          routesGroup.add(new THREE.Mesh(routeGeo, routeMat));
+
+          if (hasReassignedOnto) {
+            const movedTrain = chgs.find(
+              (c) => c.proposed_platform === plat.id && c.platform_changed
+            );
+            const routeTex = createBadgeTexture(
+              `BYPASS ROUTE → ${plat.id}`,
+              `${movedTrain?.train_id ?? "T103"} SWITCHED ${
+                movedTrain?.previous_platform ?? "P2"
+              }→${plat.id} (0M HOLD)`,
+              "#34d399",
+              "rgba(6, 78, 59, 0.94)"
+            );
+            const routeSprite = new THREE.Sprite(
+              new THREE.SpriteMaterial({ map: routeTex, depthTest: false })
+            );
+            routeSprite.position.set(-22, 2.8, zOffset * 0.65);
+            routeSprite.scale.set(6.4, 2.0, 1);
+            routesGroup.add(routeSprite);
           }
         }
 
@@ -791,19 +990,17 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
           const hazardGroup = new THREE.Group();
           hazardGroup.userData = { platformId: plat.id };
 
-          // Red hazard volume over track and platform
           const hazardBox = new THREE.Mesh(
             new THREE.BoxGeometry(36, 1.5, 4.2),
             new THREE.MeshBasicMaterial({
               color: 0xef4444,
               transparent: true,
-              opacity: isClosedNow ? 0.34 : 0.18,
+              opacity: isClosedNow ? 0.34 : 0.2,
             })
           );
           hazardBox.position.set(0, 0.85, zOffset - 1.1);
           hazardGroup.add(hazardBox);
 
-          // Red/white physical barrier blocks at West & East ends of track
           [-17.5, 17.5].forEach((bx) => {
             const barrier = new THREE.Mesh(
               new THREE.BoxGeometry(0.6, 1.1, 2.2),
@@ -832,10 +1029,19 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         }
       });
 
-      // Build Trains & Selected Route Highlight
+      // 2. Build Trains along their assigned routes without any overlap
       const conflictingTrains = new Set<string>();
       valErrs.forEach((err) => {
         (err.train_ids ?? []).forEach((t) => conflictingTrains.add(t));
+      });
+
+      // Sort trains per platform by arrival time so waiting trains are spaced cleanly
+      const platOrderMap = new Map<string, number>();
+      plats.forEach((p) => {
+        const pTrains = asgns
+          .filter((a) => a.platform_id === p.id && !a.unresolved)
+          .sort((a, b) => (a.arrival ?? 0) - (b.arrival ?? 0));
+        pTrains.forEach((t, orderIdx) => platOrderMap.set(t.train_id, orderIdx));
       });
 
       asgns.forEach((a) => {
@@ -850,27 +1056,22 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         const curve = platformCurves.get(a.platform_id);
         if (!curve) return;
 
-        // Calculate normalized parameter u in [0.04, 0.96] along track spline from simClock
+        const orderOnPlat = platOrderMap.get(a.train_id) ?? 0;
+
+        // Calculate non-overlapping normalized parameter u along track spline
         let u = 0.5;
-        let stateLabel = "DWELLING";
-        if (clock < a.arrival - 20) {
-          u = 0.06;
-          stateLabel = `SCHED ${a.arrival_str}`;
-        } else if (clock < a.arrival) {
-          const ratio = 1 - (a.arrival - clock) / 20;
-          u = 0.06 + ratio * 0.36;
-          stateLabel = "APPROACHING";
+        let stateLabel = "DOCKED";
+        if (clock < a.arrival) {
+          // Stagger approaching/waiting trains cleanly along West Approach [0.08 .. 0.28]
+          u = Math.max(0.06, 0.24 - orderOnPlat * 0.14);
+          stateLabel = `ARR ${a.arrival_str}`;
         } else if (clock >= a.arrival && clock < a.departure) {
           const ratio =
             (clock - a.arrival) / Math.max(1, a.departure - a.arrival);
-          u = 0.42 + ratio * 0.16;
-          stateLabel = "DWELLING";
-        } else if (clock >= a.departure && clock < a.departure + 20) {
-          const ratio = (clock - a.departure) / 20;
-          u = 0.58 + ratio * 0.36;
-          stateLabel = "DEPARTING";
+          u = 0.44 + ratio * 0.14;
+          stateLabel = `DEP ${a.departure_str}`;
         } else {
-          u = 0.95;
+          u = Math.min(0.94, 0.8 + orderOnPlat * 0.12);
           stateLabel = "CLEARED";
         }
 
@@ -882,67 +1083,25 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
 
         const bodyColor = isConflict
           ? 0xdc2626
-          : isDelayed
-          ? 0xd97706
           : isMoved
           ? 0x10b981
-          : a.fixed || a.departed
-          ? 0x6366f1
-          : 0x0ea5e9;
+          : isDelayed
+          ? 0xd97706
+          : 0x2563eb;
 
         const badgeHex = isConflict
           ? "#f87171"
-          : isDelayed
-          ? "#fbbf24"
           : isMoved
           ? "#34d399"
+          : isDelayed
+          ? "#fbbf24"
           : "#38bdf8";
 
-        // Highlight active route if selected or moved
-        if (isSelected || isMoved) {
-          const routeGeo = new THREE.TubeGeometry(
-            curve,
-            64,
-            isSelected ? 0.22 : 0.14,
-            8,
-            false
-          );
-          const routeMat = new THREE.MeshBasicMaterial({
-            color: isConflict ? 0xef4444 : isMoved ? 0x10b981 : 0x38bdf8,
-            transparent: true,
-            opacity: isSelected ? 0.75 : 0.4,
-          });
-          routesGroup.add(new THREE.Mesh(routeGeo, routeMat));
-
-          // If reassigned, also show subtle ghost line on original platform
-          if (
-            isMoved &&
-            chg?.previous_platform &&
-            platformCurves.has(chg.previous_platform)
-          ) {
-            const oldCurve = platformCurves.get(chg.previous_platform)!;
-            const ghostGeo = new THREE.TubeGeometry(
-              oldCurve,
-              48,
-              0.1,
-              6,
-              false
-            );
-            const ghostMat = new THREE.MeshBasicMaterial({
-              color: 0x94a3b8,
-              transparent: true,
-              opacity: 0.28,
-            });
-            routesGroup.add(new THREE.Mesh(ghostGeo, ghostMat));
-          }
-        }
-
-        // Build 2-car articulated train mesh along the curve
         const trainRoot = new THREE.Group();
         trainRoot.userData = { trainId: a.train_id };
 
-        const leadPos = curve.getPointAt(Math.min(0.98, Math.max(0.02, u)));
-        const leadTan = curve.getTangentAt(Math.min(0.98, Math.max(0.02, u)));
+        const leadPos = curve.getPointAt(Math.min(0.96, Math.max(0.04, u)));
+        const leadTan = curve.getTangentAt(Math.min(0.96, Math.max(0.04, u)));
         const yaw = Math.atan2(leadTan.z, leadTan.x);
 
         trainRoot.position.set(leadPos.x, 0.35, leadPos.z);
@@ -953,7 +1112,7 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
           metalness: 0.45,
           roughness: 0.3,
           emissive: isSelected ? bodyColor : 0x000000,
-          emissiveIntensity: isSelected ? 0.35 : 0,
+          emissiveIntensity: isSelected ? 0.38 : 0,
         });
         const roofMat = new THREE.MeshStandardMaterial({
           color: 0xe2e8f0,
@@ -962,7 +1121,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         });
         const winMat = new THREE.MeshBasicMaterial({ color: 0xbae6fd });
 
-        // Lead Power Car + Trailing Coach
         [2.2, -2.4].forEach((carX, carIdx) => {
           const carBody = new THREE.Mesh(
             new THREE.BoxGeometry(4.1, 1.35, 1.55),
@@ -981,7 +1139,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
           carRoof.userData = { trainId: a.train_id };
           trainRoot.add(carRoof);
 
-          // Illuminated window strip on both sides
           const winStrip = new THREE.Mesh(
             new THREE.BoxGeometry(3.4, 0.38, 1.62),
             winMat
@@ -991,7 +1148,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
           trainRoot.add(winStrip);
 
           if (carIdx === 0) {
-            // Aerodynamic nose cone + dual headlights
             const nose = new THREE.Mesh(
               new THREE.ConeGeometry(0.78, 1.2, 4),
               carMat
@@ -1013,12 +1169,14 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
           }
         });
 
-        // Floating Telemetry Label Sprite above train
-        const subText = `${a.platform_id} · ${stateLabel}${
-          a.total_delay_minutes > 0 ? ` +${a.total_delay_minutes}m` : ""
+        const titleText = isMoved
+          ? `${a.train_id} (${chg?.previous_platform}→${a.platform_id})`
+          : `${a.train_id} · ${a.platform_id}`;
+        const subText = `${stateLabel}${
+          a.total_delay_minutes > 0 ? ` · +${a.total_delay_minutes}m` : " · ON TIME"
         }`;
         const labelTex = createBadgeTexture(
-          a.train_id,
+          titleText,
           subText,
           badgeHex,
           isSelected ? "rgba(14, 116, 144, 0.96)" : "rgba(8, 17, 34, 0.92)"
@@ -1026,8 +1184,8 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
         const sprite = new THREE.Sprite(
           new THREE.SpriteMaterial({ map: labelTex, depthTest: false })
         );
-        sprite.position.set(0, 3.25, 0);
-        sprite.scale.set(5.4, 2.0, 1);
+        sprite.position.set(0, 3.35, 0);
+        sprite.scale.set(5.6, 2.0, 1);
         sprite.userData = { trainId: a.train_id };
         trainRoot.add(sprite);
 
@@ -1035,7 +1193,6 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
       });
     };
 
-    // Main Render Loop
     let rafId = 0;
     const animate = () => {
       rafId = requestAnimationFrame(animate);
@@ -1073,9 +1230,93 @@ export const ThreeStation: React.FC<ThreeStationProps> = ({
 
   return (
     <div
-      ref={containerRef}
-      className="three-station-viewport"
-      data-testid="three-station-container"
-    />
+      className="three-station-geo-wrapper"
+      style={{
+        position: "relative",
+        width: "100%",
+        height: "100%",
+        minHeight: "420px",
+        background:
+          localGeoStyle === "satellite"
+            ? "radial-gradient(circle at center, #0f291e 0%, #05101a 100%)"
+            : "radial-gradient(circle at center, #dbeafe 0%, #94a3b8 100%)",
+        overflow: "hidden",
+      }}
+    >
+      {/* Floating 3D Real Geospatial Map Layer Switcher */}
+      <div
+        className="three-geo-hud-bar"
+        data-testid="three-geo-hud-bar"
+        style={{
+          position: "absolute",
+          top: "12px",
+          left: "12px",
+          zIndex: 10,
+          display: "flex",
+          alignItems: "center",
+          gap: "6px",
+          padding: "5px 10px",
+          background: "rgba(15, 23, 42, 0.9)",
+          border: "1px solid rgba(59, 130, 246, 0.5)",
+          borderRadius: "8px",
+          color: "#f8fafc",
+          fontSize: "11px",
+          fontWeight: 700,
+        }}
+      >
+        <span style={{ color: "#60a5fa" }}>🌍 3D REAL GEO MAP BASE:</span>
+        <button
+          type="button"
+          onClick={() => setLocalGeoStyle("osm")}
+          data-testid="three-geo-street-btn"
+          style={{
+            padding: "3px 8px",
+            borderRadius: "5px",
+            border: "1px solid #3b82f6",
+            background: localGeoStyle === "osm" ? "#2563eb" : "transparent",
+            color: "#ffffff",
+            fontSize: "10.5px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Real Street Map 3D
+        </button>
+        <button
+          type="button"
+          onClick={() => setLocalGeoStyle("satellite")}
+          data-testid="three-geo-sat-btn"
+          style={{
+            padding: "3px 8px",
+            borderRadius: "5px",
+            border: "1px solid #3b82f6",
+            background:
+              localGeoStyle === "satellite" ? "#2563eb" : "transparent",
+            color: "#ffffff",
+            fontSize: "10.5px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Real Satellite 3D
+        </button>
+        <span
+          style={{
+            marginLeft: "6px",
+            color: "#34d399",
+            fontFamily: "monospace",
+          }}
+        >
+          ● Live 3D Routes &amp; Switches Active
+        </span>
+      </div>
+
+      <div
+        ref={containerRef}
+        className="three-station-viewport"
+        data-testid="three-station-container"
+        style={{ width: "100%", height: "100%", minHeight: "420px" }}
+      />
+    </div>
   );
 };
