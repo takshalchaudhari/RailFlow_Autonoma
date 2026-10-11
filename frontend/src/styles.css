@@ -1960,5 +1960,629 @@ tr.row-selected{background:#10264488}
   margin-bottom: 8px;
 }
 
+/* ============================================================================
+   SWISS DAYLIGHT & HIGH-CONTRAST OPERATIONS THEME + NATIVE SCROLL UNLOCK
+   ============================================================================ */
+html,
+body {
+  height: auto !important;
+  min-height: 100vh;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+.control-centre-shell {
+  display: flex;
+  min-height: 100vh !important;
+  height: auto !important;
+  width: 100% !important;
+  overflow: visible !important;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Crisp Architectural Slate Left Navigation Rail */
+.nav-rail {
+  width: 210px;
+  background: #0f172a !important;
+  border-right: 1px solid #1e293b !important;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 20;
+}
+
+.rail-nav-btn {
+  color: #cbd5e1 !important;
+}
+.rail-nav-btn:hover {
+  background: #1e293b !important;
+  color: #ffffff !important;
+}
+.rail-nav-btn.active {
+  background: #2563eb !important;
+  border-color: #3b82f6 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35) !important;
+}
+
+/* Main Scrollable Workspace Column */
+.main-ops-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: auto !important;
+  min-height: 100vh !important;
+  overflow-y: visible !important;
+  overflow-x: hidden !important;
+  background: #f1f5f9 !important;
+}
+
+/* Clean White Top Operations Bar */
+.ops-topbar {
+  background: #ffffff !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+  padding: 8px 18px !important;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.05);
+}
+
+.fictional-simulation-pill {
+  background: #eff6ff !important;
+  border: 1px solid #93c5fd !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+}
+
+.control-select,
+.control-input {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 600;
+}
+
+.clock-widget {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+.clock-label {
+  color: #475569 !important;
+  font-weight: 700;
+}
+.clock-time {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+.clock-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 700;
+}
+.clock-btn:hover {
+  background: #e2e8f0 !important;
+}
+
+/* Status & Quick Action Strip */
+.quick-action-strip {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 6px 18px !important;
+  height: auto !important;
+  min-height: 40px;
+}
+.notice-readout {
+  color: #1e293b !important;
+  font-weight: 600;
+}
+
+.hud-btn {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  font-weight: 700 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+.hud-btn:hover {
+  background: #f1f5f9 !important;
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+}
+.hud-btn.active,
+.hud-btn.accent {
+  background: #2563eb !important;
+  border-color: #1d4ed8 !important;
+  color: #ffffff !important;
+}
+.hud-btn.warn {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #b45309 !important;
+}
+
+/* High-Contrast Solver & Validator Badges */
+.badge-valid,
+.valid {
+  background: #ecfdf5 !important;
+  border: 1px solid #10b981 !important;
+  color: #047857 !important;
+  font-weight: 800 !important;
+}
+.badge-invalid {
+  background: #fef2f2 !important;
+  border: 1px solid #ef4444 !important;
+  color: #b91c1c !important;
+  font-weight: 800 !important;
+}
+.badge-warn,
+.badge-partial {
+  background: #fffbeb !important;
+  border: 1px solid #f59e0b !important;
+  color: #b45309 !important;
+  font-weight: 800 !important;
+}
+
+/* ? Judge Help Circle Button */
+.help-q-btn {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #2563eb;
+  border: 1.5px solid #93c5fd;
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+  transition: transform 0.12s ease, background 0.12s ease;
+}
+.help-q-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.08);
+}
+
+.judge-topic-popover,
+.judge-inline-help {
+  margin: 8px 16px 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #eff6ff;
+  border: 1.5px solid #3b82f6;
+  color: #1e3a8a;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+}
+.judge-inline-help {
+  margin: 0;
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+}
+.jih-close {
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: #2563eb;
+  border: none;
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 11.5px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+/* Compact Clean Judge Story Banner */
+.judge-story-banner {
+  margin: 8px 16px 0 !important;
+  padding: 8px 14px !important;
+  border-radius: 10px !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+.judge-story-headline {
+  color: #0f172a !important;
+}
+.judge-tag {
+  background: #eff6ff !important;
+  border: 1px solid #60a5fa !important;
+  color: #1d4ed8 !important;
+}
+.judge-sub {
+  color: #475569 !important;
+}
+.judge-sub b {
+  color: #0f172a !important;
+}
+.judge-toggle-btn {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+  font-weight: 700 !important;
+}
+.judge-firewall-cta {
+  background: #fef2f2 !important;
+  border: 1px solid #ef4444 !important;
+  color: #b91c1c !important;
+}
+.judge-story-card {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #334155 !important;
+}
+.judge-story-card strong {
+  color: #0f172a !important;
+}
+.judge-story-card p {
+  color: #334155 !important;
+}
+.judge-story-card.active-card {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+}
+.judge-story-card.active-card.safe {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+.judge-story-card.active-card.warn {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+}
+.judge-story-card.active-card.danger {
+  background: #fef2f2 !important;
+  border-color: #ef4444 !important;
+}
+.txt-green {
+  color: #059669 !important;
+}
+.txt-red {
+  color: #dc2626 !important;
+}
+
+/* Unlock Central Split Grid & Stage for Smooth Scrolling */
+.centre-split-grid {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: visible !important;
+  align-items: flex-start;
+}
+.centre-stage {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: visible !important;
+  padding-bottom: 32px;
+}
+.map-centric-stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 10px 16px !important;
+  gap: 10px !important;
+  overflow: visible !important;
+}
+
+/* Clean White Driver & Signaller Guided Simulation Bar */
+.driver-guided-bar {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+.driver-bar-title {
+  color: #1e293b !important;
+}
+.driver-step-btn {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+.driver-step-btn:hover {
+  background: #eff6ff !important;
+  border-color: #3b82f6 !important;
+}
+.driver-step-btn.active-step {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+  color: #1d4ed8 !important;
+}
+.driver-step-btn.primary-step {
+  background: #059669 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+.driver-mini-card {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.driver-mini-card strong {
+  color: #0f172a !important;
+}
+.driver-mini-card.selected {
+  background: #eff6ff !important;
+  border-color: #2563eb !important;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2) !important;
+}
+.driver-mini-card.rerouted {
+  background: #ecfdf5 !important;
+  border-color: #10b981 !important;
+}
+.driver-mini-card.delayed {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+}
+.driver-track-pill {
+  background: #e0f2fe !important;
+  color: #0369a1 !important;
+}
+.driver-mini-sub {
+  color: #475569 !important;
+}
+
+/* Real Map Viewport & Bright OpenStreetMap Tiles */
+.station-map-shell {
+  min-height: 460px !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08) !important;
+  background: #0b1526 !important;
+}
+.map-hud-top {
+  background: #ffffff !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+.sim-badge {
+  background: #eff6ff !important;
+  border: 1px solid #93c5fd !important;
+  color: #1d4ed8 !important;
+  font-weight: 800 !important;
+}
+.segmented-btns {
+  background: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.seg-btn {
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+.seg-btn.active {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+.osm-street-tile {
+  filter: contrast(1.02) saturate(1.08) brightness(0.95) !important;
+  opacity: 0.9 !important;
+}
+.sat-aerial-tile {
+  filter: contrast(1.08) saturate(1.12) brightness(0.92) !important;
+  opacity: 0.92 !important;
+}
+
+/* Right Operations & Voice Panel — Clean White Surface */
+.context-right-drawer,
+.right-inspector-panel {
+  background: #ffffff !important;
+  border-left: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  height: auto !important;
+  min-height: calc(100vh - 96px);
+}
+.drawer-tabs {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+.drawer-tab {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.drawer-tab.active {
+  color: #2563eb !important;
+  border-bottom-color: #2563eb !important;
+  background: #ffffff !important;
+}
+.inspector-card,
+.telemetry-stat-box,
+.occupancy-strip-shell,
+.subpage-scroll-container .panel,
+.subpage-card {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04) !important;
+}
+.subpage-scroll-container {
+  overflow-y: visible !important;
+  height: auto !important;
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+/* Ensure Real OpenStreetMap & Satellite Tiles Fill the Map Backdrop */
+.geo-tile-backdrop {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 1 !important;
+  opacity: 1 !important;
+  overflow: hidden !important;
+}
+.geo-tile-grid {
+  position: absolute !important;
+  inset: 0 !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  grid-template-rows: repeat(2, 1fr) !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  filter: none !important;
+}
+.geo-raster-tile,
+.osm-street-tile,
+.sat-aerial-tile {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  opacity: 1 !important;
+  filter: contrast(1.03) saturate(1.1) !important;
+}
+.rich-station-svg {
+  position: relative !important;
+  z-index: 3 !important;
+  background: transparent !important;
+}
+
+/* Right Inspector & Bottom Timeline Clean Daylight Styling */
+.right-panel-shell,
+.inspector-body,
+.inspector-block,
+.tele-grid div,
+.tele-cell,
+.compact-timeline-shell,
+.timeline-strip-row,
+.timeline-track-lane {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1 !important;
+}
+.inspector-block {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+}
+.tele-cell,
+.tele-grid div {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.tele-cell span,
+.tele-grid span {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.tele-cell strong,
+.tele-grid strong {
+  color: #0f172a !important;
+}
+.inspector-block h4,
+.inspector-block h3,
+.inspector-block p,
+.inspector-block li {
+  color: #1e293b !important;
+}
+.compact-timeline-shell {
+  padding: 12px 16px !important;
+  border-radius: 10px !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+}
+.timeline-track-lane {
+  background: #f8fafc !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.map-scrubber-footer,
+.map-entity-pills-bar {
+  background: #ffffff !important;
+  border-top: 1px solid #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+/* Clean Daylight Styling for Compact Occupancy Strip, Right Panel & KV Grid */
+.compact-occupancy-strip {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05) !important;
+  color: #0f172a !important;
+}
+.strip-row {
+  border-top: 1px solid #e2e8f0 !important;
+}
+.strip-track-col {
+  background: #f1f5f9 !important;
+  border: 1px solid #e2e8f0 !important;
+}
+.strip-scale .strip-track-col {
+  background: transparent !important;
+  border: none !important;
+}
+.strip-label-col strong {
+  color: #0f172a !important;
+}
+.strip-label-col small {
+  color: #475569 !important;
+}
+.contextual-right-panel {
+  background: #ffffff !important;
+  border-left: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
+}
+.right-panel-tabs {
+  background: #f8fafc !important;
+  border-bottom: 1px solid #cbd5e1 !important;
+}
+.right-tab-btn {
+  color: #475569 !important;
+}
+.right-tab-btn.active {
+  color: #2563eb !important;
+  border-bottom-color: #2563eb !important;
+  background: #ffffff !important;
+}
+.kv-grid div {
+  background: #f8fafc !important;
+  border: 1px solid #cbd5e1 !important;
+}
+.kv-grid span {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.kv-grid strong {
+  color: #0f172a !important;
+}
+.compact-list {
+  color: #334155 !important;
+}
+.inspector-card.gate-card {
+  background: #fffbeb !important;
+  border-color: #f59e0b !important;
+  color: #78350f !important;
+}
+
+/* Keep Geo Corridor HUD Compact & Non-Overlapping */
+.geo-corridor-hud {
+  top: auto !important;
+  bottom: 24px !important;
+  left: auto !important;
+  right: 12px !important;
+  max-width: 390px !important;
+  padding: 5px 10px !important;
+  background: rgba(15, 23, 42, 0.86) !important;
+  border: 1px solid rgba(56, 189, 248, 0.4) !important;
+  border-radius: 6px !important;
+  z-index: 4 !important;
+}
+.geo-corridor-title strong {
+  font-size: 10px !important;
+}
+.geo-corridor-title span {
+  display: none !important;
+}
+
+
+
+
 
 

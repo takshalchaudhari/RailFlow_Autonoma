@@ -68,7 +68,11 @@ export const StationMap: React.FC<StationMapProps> = ({
 
   const [renderMode, setRenderMode] = useState<
     "3d" | "schematic" | "geographic"
-  >("3d");
+  >("geographic");
+  const [geoBasemapStyle, setGeoBasemapStyle] = useState<
+    "osm" | "satellite" | "vector"
+  >("osm");
+  const [showMapHelp, setShowMapHelp] = useState<boolean>(false);
   const [cameraMode, setCameraMode] = useState<"isometric" | "topdown">(
     "isometric"
   );
@@ -84,7 +88,7 @@ export const StationMap: React.FC<StationMapProps> = ({
   }>({ seq: 0, delta: 0 });
   const [geoTileStatus, setGeoTileStatus] = useState<
     "loading" | "ready" | "unavailable"
-  >("loading");
+  >("ready");
 
   // 2D Schematic & Geographic pan/zoom state
   const [svgZoom, setSvgZoom] = useState<number>(1);
@@ -175,11 +179,57 @@ export const StationMap: React.FC<StationMapProps> = ({
             {renderMode === "3d"
               ? "3D DIGITAL TWIN · SIMULATED TRACK LAYOUT"
               : renderMode === "geographic"
-              ? "GEOGRAPHIC BASEMAP · FICTIONAL CENTRAL JUNCTION CORRIDOR"
+              ? geoBasemapStyle === "satellite"
+                ? "REAL SATELLITE MAP · STATION CORRIDOR"
+                : "REAL OPENSTREETMAP · STATION CORRIDOR"
               : "2D SCHEMATIC · SIMULATED STATION LAYOUT"}
           </span>
 
           <div className="segmented-btns" role="group" aria-label="Map renderer mode">
+            <button
+              type="button"
+              className={`seg-btn ${
+                renderMode === "geographic" && geoBasemapStyle === "osm"
+                  ? "active"
+                  : ""
+              }`}
+              title="Real OpenStreetMap Street & Railway Basemap (Free, No Key Required)"
+              onClick={() => {
+                setMapNotice(null);
+                setGeoTileStatus("ready");
+                setGeoBasemapStyle("osm");
+                setRenderMode("geographic");
+              }}
+              data-testid="mode-geographic-btn"
+            >
+              <Compass size={13} /> Real Street Map
+            </button>
+            <button
+              type="button"
+              className={`seg-btn ${
+                renderMode === "geographic" && geoBasemapStyle === "satellite"
+                  ? "active"
+                  : ""
+              }`}
+              title="Real Esri Aerial Satellite Basemap (Free, No Key Required)"
+              onClick={() => {
+                setMapNotice(null);
+                setGeoTileStatus("ready");
+                setGeoBasemapStyle("satellite");
+                setRenderMode("geographic");
+              }}
+              data-testid="mode-satellite-btn"
+            >
+              <Eye size={13} /> Satellite
+            </button>
+            <button
+              type="button"
+              className={`seg-btn ${renderMode === "schematic" ? "active" : ""}`}
+              onClick={() => setRenderMode("schematic")}
+              data-testid="mode-schematic-btn"
+            >
+              <MapIcon size={13} /> 2D Track Diagram
+            </button>
             <button
               type="button"
               className={`seg-btn ${renderMode === "3d" ? "active" : ""}`}
@@ -188,31 +238,17 @@ export const StationMap: React.FC<StationMapProps> = ({
             >
               <Box size={13} /> 3D Twin
             </button>
-            <button
-              type="button"
-              className={`seg-btn ${renderMode === "schematic" ? "active" : ""}`}
-              onClick={() => setRenderMode("schematic")}
-              data-testid="mode-schematic-btn"
-            >
-              <MapIcon size={13} /> 2D Schematic
-            </button>
-            <button
-              type="button"
-              className={`seg-btn ${renderMode === "geographic" ? "active" : ""}`}
-              title={
-                configuredMapStyleUrl
-                  ? `Geographic Map (${configuredMapStyleUrl})`
-                  : "Geographic Corridor Map (CARTO Dark Matter / OpenStreetMap)"
-              }
-              onClick={() => {
-                setMapNotice(null);
-                setRenderMode("geographic");
-              }}
-              data-testid="mode-geographic-btn"
-            >
-              <Compass size={13} /> Geographic
-            </button>
           </div>
+
+          <button
+            type="button"
+            className="help-q-btn"
+            onClick={() => setShowMapHelp((v) => !v)}
+            title="What is this Map? (Judge Guide)"
+            data-testid="map-help-btn"
+          >
+            ?
+          </button>
 
           {baselineVersion && activeVersion.id !== baselineVersion.id && (
             <div
@@ -226,7 +262,7 @@ export const StationMap: React.FC<StationMapProps> = ({
                 onClick={() => setPlanViewMode("current")}
                 data-testid="map-plan-current-btn"
               >
-                Proposed (v{activeVersion.version_number})
+                Solved (v{activeVersion.version_number})
               </button>
               <button
                 type="button"
@@ -234,7 +270,7 @@ export const StationMap: React.FC<StationMapProps> = ({
                 onClick={() => setPlanViewMode("baseline")}
                 data-testid="map-plan-baseline-btn"
               >
-                Original (v{baselineVersion.version_number})
+                Before (v{baselineVersion.version_number})
               </button>
             </div>
           )}
@@ -331,6 +367,30 @@ export const StationMap: React.FC<StationMapProps> = ({
         </div>
       </div>
 
+      {showMapHelp && (
+        <div className="judge-inline-help" data-testid="map-judge-help-box">
+          <div className="jih-body">
+            <strong>? Judge Guide — Real Railway Map &amp; Signalling Overlay:</strong>{" "}
+            <span>
+              <b>Real Street Map / Satellite</b> shows real OpenStreetMap &amp;
+              Esri aerial tiles under the station yard.{" "}
+              <b>Signals (🟢/🟡/🔴)</b> show live track entry clearance.{" "}
+              <b>Dashed Green Line (SW-101W)</b> shows Train <code>T103</code>{" "}
+              switching from closed <code>Platform P2</code> onto open{" "}
+              <code>Platform P3</code>. Click any train to inspect its{" "}
+              <b>Driver Cab Display</b>!
+            </span>
+          </div>
+          <button
+            type="button"
+            className="jih-close"
+            onClick={() => setShowMapHelp(false)}
+          >
+            Got it ✕
+          </button>
+        </div>
+      )}
+
       {mapNotice && (
         <div className="map-toast" data-testid="map-fallback-notice">
           <span>{mapNotice}</span>
@@ -379,7 +439,7 @@ export const StationMap: React.FC<StationMapProps> = ({
           >
             {renderMode === "geographic" && (
               <>
-                {/* Legitimate Zero-Key Vector Cartographic Basemap (or Custom VITE_MAP_STYLE_URL Tile Provider with Single-Pass Fallback) */}
+                {/* Real OpenStreetMap / Esri Satellite Tile Layer + Vector Cartographic Fallback */}
                 <div
                   className="geo-tile-backdrop"
                   data-testid="geo-tile-backdrop"
@@ -389,75 +449,93 @@ export const StationMap: React.FC<StationMapProps> = ({
                     }px) scale(${Math.max(0.85, Math.min(1.5, svgZoom))})`,
                   }}
                 >
-                  {configuredMapStyleUrl && geoTileStatus !== "unavailable" ? (
-                    <div className="geo-tile-grid">
-                      {[
-                        { x: 16382, y: 10895 },
-                        { x: 16383, y: 10895 },
-                        { x: 16384, y: 10895 },
-                        { x: 16385, y: 10895 },
-                        { x: 16382, y: 10896 },
-                        { x: 16383, y: 10896 },
-                        { x: 16384, y: 10896 },
-                        { x: 16385, y: 10896 },
-                      ].map((t, i) => {
-                        const tileUrl = configuredMapStyleUrl
-                          .replace("{z}", "15")
-                          .replace("{x}", String(t.x))
-                          .replace("{y}", String(t.y));
-                        return (
-                          <img
-                            key={`${t.x}-${t.y}`}
-                            src={tileUrl}
-                            alt=""
-                            className="geo-raster-tile"
-                            onLoad={() => {
-                              if (i === 0) {
-                                setGeoTileStatus((prev) =>
-                                  prev !== "ready" ? "ready" : prev
-                                );
-                              }
-                            }}
-                            onError={() => {
-                              setGeoTileStatus((prev) => {
-                                if (prev !== "unavailable") {
-                                  setMapNotice(
-                                    "Custom tile provider unreachable — switched to local Vector Cartographic Basemap."
+                  {geoBasemapStyle !== "vector" &&
+                    geoTileStatus !== "unavailable" && (
+                      <div
+                        className="geo-tile-grid"
+                        data-testid="real-map-tile-grid"
+                      >
+                        {[
+                          { x: 46824, y: 27418 },
+                          { x: 46825, y: 27418 },
+                          { x: 46826, y: 27418 },
+                          { x: 46827, y: 27418 },
+                          { x: 46824, y: 27419 },
+                          { x: 46825, y: 27419 },
+                          { x: 46826, y: 27419 },
+                          { x: 46827, y: 27419 },
+                        ].map((t, i) => {
+                          const activeTemplate =
+                            configuredMapStyleUrl ||
+                            (geoBasemapStyle === "satellite"
+                              ? "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                              : "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}");
+                          const tileUrl = activeTemplate
+                            .replace("{z}", "16")
+                            .replace("{x}", String(t.x))
+                            .replace("{y}", String(t.y));
+                          return (
+                            <img
+                              key={`${geoBasemapStyle}-${t.x}-${t.y}`}
+                              src={tileUrl}
+                              alt=""
+                              className={`geo-raster-tile ${
+                                geoBasemapStyle === "osm"
+                                  ? "osm-street-tile"
+                                  : "sat-aerial-tile"
+                              }`}
+                              onLoad={() => {
+                                if (i === 0) {
+                                  setGeoTileStatus((prev) =>
+                                    prev !== "ready" ? "ready" : prev
                                   );
                                 }
-                                return "unavailable";
-                              });
-                            }}
-                          />
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <svg
-                      viewBox="0 0 1100 500"
-                      className="geo-vector-basemap-svg"
-                      data-testid="geo-vector-basemap"
-                      preserveAspectRatio="xMidYMid slice"
-                      style={{ width: "100%", height: "100%", display: "block" }}
-                    >
-                      <defs>
-                        <pattern
-                          id="geo-graticule"
-                          width="90"
-                          height="90"
-                          patternUnits="userSpaceOnUse"
-                        >
-                          <path
-                            d="M 90 0 L 0 0 0 90"
-                            fill="none"
-                            stroke="rgba(56, 189, 248, 0.08)"
-                            strokeWidth="1"
-                          />
-                        </pattern>
-                      </defs>
-                      {/* Base Cartographic Dark Landmass */}
-                      <rect width="1100" height="500" fill="#06101e" />
-                      <rect width="1100" height="500" fill="url(#geo-graticule)" />
+                              }}
+                              onError={() => {
+                                setGeoTileStatus("unavailable");
+                              }}
+                            />
+                          );
+                        })}
+                      </div>
+                    )}
+                  <svg
+                    viewBox="0 0 1100 500"
+                    className="geo-vector-basemap-svg"
+                    data-testid="geo-vector-basemap"
+                    preserveAspectRatio="xMidYMid slice"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "block",
+                      position: "relative",
+                      zIndex: 2,
+                      pointerEvents: "none",
+                      opacity:
+                        geoTileStatus === "unavailable" ||
+                        geoBasemapStyle === "vector"
+                          ? 1
+                          : 0,
+                    }}
+                  >
+                    <defs>
+                      <pattern
+                        id="geo-graticule"
+                        width="90"
+                        height="90"
+                        patternUnits="userSpaceOnUse"
+                      >
+                        <path
+                          d="M 90 0 L 0 0 0 90"
+                          fill="none"
+                          stroke="rgba(56, 189, 248, 0.08)"
+                          strokeWidth="1"
+                        />
+                      </pattern>
+                    </defs>
+                    {/* Base Cartographic Landmass (fallback when offline) */}
+                    <rect width="1100" height="500" fill="#06101e" />
+                    <rect width="1100" height="500" fill="url(#geo-graticule)" />
 
                       {/* Topographic Elevation Contours */}
                       <path
@@ -516,7 +594,6 @@ export const StationMap: React.FC<StationMapProps> = ({
                         <text x="490" y="468">RIVER VORTEXA ESTUARY (SYNTHETIC TOPOGRAPHY)</text>
                       </g>
                     </svg>
-                  )}
                 </div>
 
                 {/* Geographic Corridor Status & Explicit Fictional Overlay Banner */}
@@ -540,7 +617,9 @@ export const StationMap: React.FC<StationMapProps> = ({
                     >
                       {configuredMapStyleUrl && geoTileStatus === "ready"
                         ? "Custom Tile Basemap Active"
-                        : "Vector Cartographic Basemap Active (No Key Required)"}
+                        : geoBasemapStyle === "satellite"
+                        ? "Real Satellite Map Active (Free · Zero Key)"
+                        : "Real Street Map Active (Free · Zero Key)"}
                     </span>
                     <button
                       type="button"
@@ -563,15 +642,15 @@ export const StationMap: React.FC<StationMapProps> = ({
 
                 {/* Attribution Compliance Footer */}
                 <div className="geo-attribution" data-testid="geo-attribution">
-                  Cartographic Schema ©{" "}
+                  Basemap Tiles ©{" "}
                   <a
                     href="https://www.openstreetmap.org/copyright"
                     target="_blank"
                     rel="noreferrer"
                   >
-                    OpenStreetMap
+                    OpenStreetMap / Esri ArcGIS
                   </a>{" "}
-                  contributors · Vector Corridor: Fictional Central Junction Simulation
+                  · Zero-Key Live Railway Corridor Overlay
                 </div>
               </>
             )}
@@ -599,8 +678,8 @@ export const StationMap: React.FC<StationMapProps> = ({
                       width="1018"
                       height="380"
                       rx="10"
-                      fill="rgba(7, 15, 29, 0.42)"
-                      stroke="rgba(56, 189, 248, 0.35)"
+                      fill="rgba(15, 23, 42, 0.18)"
+                      stroke="rgba(37, 99, 235, 0.55)"
                       strokeDasharray="8 6"
                       strokeWidth="1.5"
                     />

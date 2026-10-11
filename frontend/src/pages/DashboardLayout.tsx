@@ -552,7 +552,8 @@ export default function DashboardLayout() {
     }
   };
 
-  const [showJudgeGuide, setShowJudgeGuide] = useState<boolean>(true);
+  const [showJudgeGuide, setShowJudgeGuide] = useState<boolean>(false);
+  const [activeHelpTopic, setActiveHelpTopic] = useState<string | null>(null);
 
   // 1-Click Complete Judge Auto-Demo: resets to standard v1, stages T101 +20m & P2 closure, and executes mathematical replanning
   const handleRunJudgeAutoDemo = async () => {
@@ -758,6 +759,19 @@ export default function DashboardLayout() {
                   status={currentVersion.validation_status}
                   isComplete={currentVersion.is_complete}
                 />
+                <button
+                  type="button"
+                  className="help-q-btn"
+                  onClick={() =>
+                    setActiveHelpTopic((t) =>
+                      t === "solver" ? null : "solver"
+                    )
+                  }
+                  title="What do Solver & Validator mean? (Judge Guide)"
+                  data-testid="help-solver-btn"
+                >
+                  ?
+                </button>
               </>
             )}
             <button
@@ -854,19 +868,62 @@ export default function DashboardLayout() {
           </div>
         )}
 
+        {/* INTERACTIVE ? JUDGE FEATURE POPOVER */}
+        {activeHelpTopic && (
+          <div className="judge-topic-popover" data-testid="judge-topic-popover">
+            <div className="jtp-content">
+              {activeHelpTopic === "solver" && (
+                <>
+                  <strong>? Judge Guide — Solver vs. Independent Safety Validator:</strong>{" "}
+                  <span>
+                    <b>Why 2 badges?</b> In RailFlow, <b>AI is forbidden from assigning train tracks</b>.{" "}
+                    First, <b>Google OR-Tools CP-SAT Solver</b> computes the fastest mathematical re-routing.{" "}
+                    Second, a separate <b>Independent Validator Firewall</b> checks all 6 railway safety laws (zero overlap, 10m safety gap, closed platforms) before any schedule is marked <code>VALID</code>.
+                  </span>
+                </>
+              )}
+              {activeHelpTopic === "steps" && (
+                <>
+                  <strong>? Judge Guide — How to Test the Problem Statement in 3 Clicks:</strong>{" "}
+                  <span>
+                    <b>Click Step 1:</b> Resets to normal baseline (<code>v1</code>).{" "}
+                    <b>Click Step 2:</b> Stages the crisis — <code>Train T101</code> is +20m late on P1 (clashing with <code>T102</code>) and <code>Platform P2</code> closes 09:20–10:00 (blocking <code>T103</code>).{" "}
+                    <b>Click Step 3:</b> Runs OR-Tools + Safety Validator — watch <code>T103</code> switch <b>P2 → P3 (0m delay!)</b> and <code>T102</code>/<code>T104</code> hold for an exact 10m safety gap!
+                  </span>
+                </>
+              )}
+            </div>
+            <button
+              type="button"
+              className="jih-close"
+              onClick={() => setActiveHelpTopic(null)}
+            >
+              Close ✕
+            </button>
+          </div>
+        )}
+
         {/* JUDGE & FIRST-TIME VISITOR PLAIN-ENGLISH STORY BANNER */}
         {scenario && currentVersion && (
           <div className="judge-story-banner" data-testid="judge-story-banner">
             <div className="judge-story-top">
               <div className="judge-story-headline">
-                <span className="judge-tag">WHAT IS THIS WEBSITE?</span>
+                <button
+                  type="button"
+                  className="help-q-btn"
+                  onClick={() => setShowJudgeGuide((g) => !g)}
+                  title="Click to see how RailFlow solves the problem statement"
+                  data-testid="help-main-btn"
+                >
+                  ?
+                </button>
+                <span className="judge-tag">PROBLEM STATEMENT P-03</span>
                 <strong>
-                  Railway Station Disruption &amp; Anti-Collision Simulator
+                  Railway Disruption &amp; Anti-Collision Simulator
                 </strong>
                 <span className="judge-sub">
-                  When a train is late or a track closes, <b>AI</b> translates the
-                  alert, <b>Google OR-Tools</b> re-routes the trains, and a{" "}
-                  <b>Safety Firewall</b> verifies a 10-minute safety gap.
+                  <b>AI</b> reads voice/text alerts → <b>OR-Tools</b> re-routes
+                  trains → <b>Safety Firewall</b> enforces 10m clearance.
                 </span>
               </div>
               <div className="judge-story-actions">
@@ -894,7 +951,7 @@ export default function DashboardLayout() {
                   className="judge-toggle-btn"
                   onClick={() => setShowJudgeGuide((g) => !g)}
                 >
-                  {showJudgeGuide ? "Hide Story ▲" : "How It Works ▼"}
+                  {showJudgeGuide ? "Hide Guide ▲" : "? How It Works ▼"}
                 </button>
               </div>
             </div>
@@ -1008,8 +1065,21 @@ export default function DashboardLayout() {
                   >
                     <div className="driver-guided-steps">
                       <span className="driver-bar-title">
-                        DRIVER &amp; SIGNALLER QUICK GUIDE:
+                        STEP-BY-STEP SIMULATOR:
                       </span>
+                      <button
+                        type="button"
+                        className="help-q-btn"
+                        onClick={() =>
+                          setActiveHelpTopic((t) =>
+                            t === "steps" ? null : "steps"
+                          )
+                        }
+                        title="How to use these 3 buttons (Judge Guide)"
+                        data-testid="help-steps-btn"
+                      >
+                        ?
+                      </button>
                       <button
                         type="button"
                         className={`driver-step-btn ${
