@@ -1661,4 +1661,304 @@ tr.row-selected{background:#10264488}
   line-height: 1.35;
 }
 
+/* Judge & First-Time Visitor Plain-English Story Banner */
+.judge-story-banner {
+  margin: 8px 16px 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(8, 47, 73, 0.65));
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+}
+.judge-story-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.judge-story-headline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: #e2e8f0;
+}
+.judge-tag {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.2);
+  border: 1px solid #38bdf8;
+  color: #7dd3fc;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+}
+.judge-sub {
+  color: #94a3b8;
+  font-size: 12px;
+}
+.judge-sub b {
+  color: #e2e8f0;
+}
+.judge-story-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.judge-demo-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #059669, #0284c7);
+  border: 1px solid #34d399;
+  color: #ffffff;
+  font-size: 11.5px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.35);
+}
+.judge-demo-cta:hover {
+  filter: brightness(1.1);
+}
+.judge-firewall-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 6px;
+  background: rgba(127, 29, 29, 0.45);
+  border: 1px solid #f87171;
+  color: #fecaca;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.judge-firewall-cta:hover {
+  background: rgba(153, 27, 27, 0.65);
+}
+.judge-toggle-btn {
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  color: #cbd5e1;
+  font-size: 11px;
+  cursor: pointer;
+}
+.judge-story-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 9px;
+}
+.judge-story-card {
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: rgba(9, 16, 29, 0.82);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  font-size: 11.5px;
+}
+.judge-story-card.active-card {
+  border-color: #38bdf8;
+  background: rgba(12, 74, 110, 0.28);
+}
+.judge-story-card.active-card.warn {
+  border-color: #f59e0b;
+  background: rgba(120, 53, 15, 0.28);
+}
+.judge-story-card.active-card.safe {
+  border-color: #10b981;
+  background: rgba(6, 78, 59, 0.32);
+}
+.judge-story-card.active-card.danger {
+  border-color: #ef4444;
+  background: rgba(127, 29, 29, 0.35);
+}
+.jsc-step {
+  display: block;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #38bdf8;
+  margin-bottom: 2px;
+}
+.judge-story-card strong {
+  display: block;
+  color: #f8fafc;
+  font-size: 12px;
+  margin-bottom: 3px;
+}
+.judge-story-card p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.35;
+}
+.txt-green {
+  color: #34d399 !important;
+}
+.txt-red {
+  color: #f87171 !important;
+}
+
+/* Landing Page Judge Overview Enhancements */
+.brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.brand-pill {
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.14);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #7dd3fc;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+}
+.marketing-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.launch-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #38bdf8;
+  color: #020617;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+}
+.judge-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 14px;
+}
+.hero-lead {
+  font-size: 15.5px !important;
+  line-height: 1.55 !important;
+  color: #e2e8f0 !important;
+  margin-bottom: 12px !important;
+}
+.hero-lead-sub {
+  font-size: 14.5px !important;
+  line-height: 1.55 !important;
+  color: #94a3b8 !important;
+  margin-bottom: 22px !important;
+}
+.hero-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.launch-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 20px;
+  border-radius: 10px;
+  background: rgba(16, 185, 129, 0.16);
+  border: 1px solid #10b981;
+  color: #6ee7b7;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+}
+.hero-visual-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.judge-scenario-card {
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(9, 16, 30, 0.92);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.45);
+}
+.jsc-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 12.5px;
+  color: #f8fafc;
+}
+.jsc-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.18);
+  color: #38bdf8;
+  font-size: 10px;
+  font-weight: 800;
+}
+.jsc-comparison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.jsc-box {
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.jsc-box.danger {
+  background: rgba(127, 29, 29, 0.28);
+  border: 1px solid rgba(248, 113, 113, 0.45);
+  color: #fecaca;
+}
+.jsc-box.safe {
+  background: rgba(6, 78, 59, 0.28);
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  color: #d1fae5;
+}
+.jsc-box-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+.jsc-box ul {
+  margin: 0;
+  padding-left: 16px;
+}
+.jsc-box li + li {
+  margin-top: 5px;
+}
+.step-pill {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(56, 189, 248, 0.16);
+  color: #38bdf8;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+
+
 
